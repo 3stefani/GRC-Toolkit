@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRC Toolkit — ENS · ISO 27001 · NIS2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:      #080b10;
+  --surf:    #0e1219;
+  --surf2:   #141920;
+  --border:  #1a2130;
+  --border2: #243040;
+  --ens:     #00d084;
+  --iso:     #4d9fff;
+  --nis:     #c084fc;
+  --cross:   #f0a500;
+  --red:     #ff4d4d;
+  --text:    #dde4ed;
+  --muted:   #5a6a7e;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,11,16,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.hdr-logo{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.hdr-logo .dot{width:7px;height:7px;border-radius:50%;background:var(--ens)}
+.hdr-nav{display:flex;gap:2px}
+.hn{font-family:var(--mono);font-size:13px;letter-spacing:1.2px;padding:5px 10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;border-radius:3px;transition:all .15s;text-transform:uppercase}
+.hn:hover{color:var(--text);border-color:var(--border2)}
+.hn.act{border-color:currentColor}
+.hn.ens{color:var(--ens)}.hn.ens.act{background:rgba(0,208,132,.07)}
+.hn.iso{color:var(--iso)}.hn.iso.act{background:rgba(77,159,255,.07)}
+.hn.nis{color:var(--nis)}.hn.nis.act{background:rgba(192,132,252,.07)}
+.hn.cross{color:var(--cross)}.hn.cross.act{background:rgba(240,165,0,.07)}
+
+/* ── MAIN ── */
+.main{padding-top:50px;min-height:100vh}
+.screen{display:none}.screen.active{display:block;animation:fadeUp .28s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HUB ── */
+.hub{max-width:1020px;margin:0 auto;padding:52px 22px 80px}
+.hub-eye{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.hub-h{font-family:var(--mono);font-size:clamp(26px,4.5vw,42px);font-weight:600;line-height:1.15;margin-bottom:14px}
+.hub-h em{font-style:normal}
+.hub-h .c-ens{color:var(--ens)}.hub-h .c-iso{color:var(--iso)}.hub-h .c-nis{color:var(--nis)}
+.hub-sub{color:var(--muted);font-size:14px;line-height:1.7;max-width:560px;margin-bottom:48px}
+.hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.hub-grid-bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.hub-grid,.hub-grid-bottom{grid-template-columns:1fr}}
+.hcard{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:26px 22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.hcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
+.hcard:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.hcard:hover::after{opacity:1}
+.hcard.c-ens::after{background:var(--ens)}.hcard.c-iso::after{background:var(--iso)}
+.hcard.c-nis::after{background:var(--nis)}.hcard.c-cross::after{background:var(--cross)}
+.hcard.wide{grid-column:1/-1}
+.hcard-num{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.hcard-num span{width:6px;height:6px;border-radius:50%;display:inline-block}
+.hcard-ico{font-size:26px;margin-bottom:12px;display:block;line-height:1}
+.hcard-title{font-family:var(--mono);font-size:14px;font-weight:600;margin-bottom:8px;line-height:1.3}
+.hcard-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.hcard-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px}
+.tag{font-family:var(--mono);font-size:8px;letter-spacing:1px;padding:3px 7px;border-radius:2px;text-transform:uppercase}
+.tg{background:rgba(0,208,132,.1);color:var(--ens);border:1px solid rgba(0,208,132,.18)}
+.tb{background:rgba(77,159,255,.1);color:var(--iso);border:1px solid rgba(77,159,255,.18)}
+.tp{background:rgba(192,132,252,.1);color:var(--nis);border:1px solid rgba(192,132,252,.18)}
+.ta{background:rgba(240,165,0,.1);color:var(--cross);border:1px solid rgba(240,165,0,.18)}
+.tm{background:rgba(90,106,126,.1);color:var(--muted);border:1px solid rgba(90,106,126,.18)}
+.tr{background:rgba(255,77,77,.1);color:var(--red);border:1px solid rgba(255,77,77,.18)}
+.hcard-cta{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;display:flex;align-items:center;gap:6px;text-transform:uppercase}
+.hcard.c-ens .hcard-cta{color:var(--ens)}.hcard.c-iso .hcard-cta{color:var(--iso)}
+.hcard.c-nis .hcard-cta{color:var(--nis)}.hcard.c-cross .hcard-cta{color:var(--cross)}
+.hub-stats{margin-top:40px;padding-top:24px;border-top:1px solid var(--border);display:flex;gap:28px;flex-wrap:wrap}
+.hstat .hn2{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--ens);display:block}
+.hstat .hl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── TOOL WRAPPER ── */
+.twrap{max-width:880px;margin:0 auto;padding:36px 22px 80px}
+.back-btn{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--muted);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:28px;padding:0;transition:color .15s;text-transform:uppercase}
+.back-btn:hover{color:var(--text)}
+.tool-h{font-family:var(--mono);font-size:19px;font-weight:600;margin-bottom:4px}
+.tool-sub{font-size:12px;color:var(--muted);margin-bottom:26px}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-bottom:24px}
+.prog-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:5px}
+.prog-track{background:var(--border);height:2px;border-radius:1px;overflow:hidden}
+.prog-fill{height:100%;transition:width .35s ease}
+.pf-ens{background:var(--ens)}.pf-iso{background:var(--iso)}.pf-nis{background:var(--nis)}.pf-cross{background:var(--cross)}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{font-family:var(--mono);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px}
+.sl-ens{color:var(--ens)}.sl-iso{color:var(--iso)}.sl-nis{color:var(--nis)}.sl-cross{color:var(--cross)}
+
+/* ── QUESTIONS ── */
+.qblock{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:7px;transition:border-color .15s}
+.qblock:hover{border-color:var(--border2)}
+.qblock-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:12px}
+.qid{font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--bg);padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.qniv{font-family:var(--mono);font-size:8px;padding:3px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.nv-b{background:rgba(0,208,132,.1);color:var(--ens)}.nv-m{background:rgba(240,165,0,.1);color:var(--cross)}.nv-a{background:rgba(255,77,77,.1);color:var(--red)}
+.qtext{font-size:12px;line-height:1.55;flex:1}
+.qopts{display:flex;gap:5px;flex-wrap:wrap}
+.qopt{font-family:var(--mono);font-size:10px;padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:3px;transition:all .12s;letter-spacing:.4px}
+.qopt:hover{border-color:var(--border2);color:var(--text)}
+.qopt.yes{border-color:var(--ens);color:var(--ens);background:rgba(0,208,132,.07)}
+.qopt.partial{border-color:var(--cross);color:var(--cross);background:rgba(240,165,0,.07)}
+.qopt.no{border-color:var(--red);color:var(--red);background:rgba(255,77,77,.07)}
+
+/* ── NAV ROW ── */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+.btn{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:10px 22px;border:none;cursor:pointer;border-radius:3px;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.btn-ens{background:var(--ens);color:#000}.btn-iso{background:var(--iso);color:#000}
+.btn-nis{background:var(--nis);color:#000}.btn-cross{background:var(--cross);color:#000}
+.btn-out{background:transparent;border:1px solid}
+.btn-out.ens{color:var(--ens);border-color:var(--ens)}.btn-out.ens:hover{background:rgba(0,208,132,.07)}
+.btn-out.iso{color:var(--iso);border-color:var(--iso)}.btn-out.iso:hover{background:rgba(77,159,255,.07)}
+.btn-out.nis{color:var(--nis);border-color:var(--nis)}.btn-out.nis:hover{background:rgba(192,132,252,.07)}
+.btn-out.cross{color:var(--cross);border-color:var(--cross)}.btn-out.cross:hover{background:rgba(240,165,0,.07)}
+.btn-out.muted{color:var(--muted);border-color:var(--border2)}.btn-out.muted:hover{border-color:var(--muted);color:var(--text)}
+
+/* ── LEVEL SELECTOR ── */
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+@media(max-width:580px){.level-grid{grid-template-columns:1fr}}
+.lcard{background:var(--surf);border:2px solid var(--border);border-radius:6px;padding:18px;cursor:pointer;transition:all .18s}
+.lcard:hover{border-color:var(--border2);transform:translateY(-2px)}
+.lcard.sel-b{border-color:var(--ens);background:rgba(0,208,132,.04)}
+.lcard.sel-m{border-color:var(--cross);background:rgba(240,165,0,.04)}
+.lcard.sel-a{border-color:var(--red);background:rgba(255,77,77,.04)}
+.lbadge{font-family:var(--mono);font-size:8px;letter-spacing:2px;padding:3px 8px;border-radius:2px;display:inline-block;margin-bottom:9px;text-transform:uppercase}
+.lb-b{background:rgba(0,208,132,.12);color:var(--ens)}.lb-m{background:rgba(240,165,0,.12);color:var(--cross)}.lb-a{background:rgba(255,77,77,.12);color:var(--red)}
+.lcard h3{font-size:13px;font-weight:600;margin-bottom:5px}.lcard p{font-size:11px;color:var(--muted);line-height:1.5}
+.lcard-count{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:9px}
+
+/* ── RESULTS ── */
+.res-top{display:grid;grid-template-columns:1fr 120px;gap:20px;align-items:start;margin-bottom:28px}
+@media(max-width:480px){.res-top{grid-template-columns:1fr}}
+.r-title{font-family:var(--mono);font-size:17px;font-weight:600;margin-bottom:5px}
+.r-meta{font-family:var(--mono);font-size:9px;color:var(--muted);line-height:2}
+.nivel-pill{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 11px;border-radius:3px;letter-spacing:1px;text-transform:uppercase;margin-top:8px;border:1px solid}
+.np-b{background:rgba(255,77,77,.1);color:var(--red);border-color:var(--red)}
+.np-m{background:rgba(240,165,0,.1);color:var(--cross);border-color:var(--cross)}
+.np-a{background:rgba(0,208,132,.1);color:var(--ens);border-color:var(--ens)}
+.sring{width:110px;height:110px;position:relative;flex-shrink:0}
+.sring svg{transform:rotate(-90deg)}
+.sring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.s-pct{font-family:var(--mono);font-size:20px;font-weight:600}
+.s-lbl{font-family:var(--mono);font-size:7px;color:var(--muted);letter-spacing:1px;margin-top:1px}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.sbox{background:var(--surf);border:1px solid var(--border);padding:12px;border-radius:4px;text-align:center}
+.sbox-n{font-family:var(--mono);font-size:22px;font-weight:600;display:block}
+.sbox-l{font-size:10px;color:var(--muted);margin-top:3px}
+.sb-c .sbox-n{color:var(--ens)}.sb-p .sbox-n{color:var(--cross)}.sb-n .sbox-n{color:var(--red)}
+.rtitle{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-top:20px}
+.gap-row{display:grid;grid-template-columns:100px 1fr auto auto;gap:8px;align-items:center;padding:9px 11px;border:1px solid var(--border);border-radius:3px;margin-bottom:3px;background:var(--surf);font-size:11px}
+@media(max-width:480px){.gap-row{grid-template-columns:1fr}}
+.gap-id{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.gap-name{color:var(--text)}
+.gprio{font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:2px;letter-spacing:1px;white-space:nowrap}
+.gp-a{background:rgba(255,77,77,.1);color:var(--red)}.gp-m{background:rgba(240,165,0,.1);color:var(--cross)}.gp-b{background:rgba(0,208,132,.1);color:var(--ens)}
+.rem-block{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--cross);padding:11px 14px;margin-bottom:5px;border-radius:0 4px 4px 0;font-size:11px;line-height:1.6}
+.rem-id{font-family:var(--mono);font-size:9px;color:var(--cross);margin-bottom:3px}
+.fbar-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.fbar-name{font-family:var(--mono);font-size:9px;color:var(--muted);width:160px;flex-shrink:0}
+.fbar-track{flex:1;background:var(--border);height:4px;border-radius:2px;overflow:hidden}
+.fbar-fill{height:100%;border-radius:2px}
+.fbar-pct{font-family:var(--mono);font-size:9px;color:var(--muted);width:30px;text-align:right}
+.act-row{display:flex;gap:8px;margin-top:28px;flex-wrap:wrap}
+
+/* ── FLASHCARDS ── */
+.flash-ctrl{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;align-items:center}
+.fsel{font-family:var(--mono);font-size:10px;background:var(--surf);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:3px;cursor:pointer;outline:none}
+.fsel:focus{border-color:var(--iso)}
+.flash-total{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto}
+.fc{background:var(--surf);border:1px solid var(--border);border-radius:10px;min-height:280px;padding:28px;cursor:pointer;position:relative;transition:all .2s;margin-bottom:14px;user-select:none}
+.fc:hover{border-color:var(--border2)}
+.fc.flip-ens{border-color:var(--ens);background:rgba(0,208,132,.04)}
+.fc.flip-iso{border-color:var(--iso);background:rgba(77,159,255,.04)}
+.fc.flip-nis{border-color:var(--nis);background:rgba(192,132,252,.04)}
+.fc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.fc-id{font-family:var(--mono);font-size:11px;font-weight:600}
+.fc-hint{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;position:absolute;bottom:14px;right:18px}
+.fc-front{}.fc-back{display:none}
+.fc.flipped .fc-front{display:none}.fc.flipped .fc-back{display:block}
+.fc-lbl{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
+.fc-nombre{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text);margin-bottom:13px;line-height:1.3}
+.fc-q{font-size:13px;color:var(--text);line-height:1.6}
+.fc-rem{font-size:12px;color:var(--muted);line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:4px;border-left:3px solid var(--cross)}
+.fc-back-lbl{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--iso);text-transform:uppercase;margin-bottom:10px}
+.flash-nav{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.flash-fb{display:flex;gap:7px}
+.fbtn{font-family:var(--mono);font-size:10px;letter-spacing:.4px;padding:8px 16px;border-radius:3px;border:1px solid;cursor:pointer;transition:all .12s;background:transparent}
+.fbtn-ok{border-color:var(--ens);color:var(--ens)}.fbtn-ok:hover{background:rgba(0,208,132,.1)}
+.fbtn-ko{border-color:var(--red);color:var(--red)}.fbtn-ko:hover{background:rgba(255,77,77,.1)}
+.fbtn-sk{border-color:var(--border2);color:var(--muted)}.fbtn-sk:hover{border-color:var(--muted);color:var(--text)}
+.flash-prog{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.sess-end{text-align:center;padding:52px 20px}
+.sess-end h2{font-family:var(--mono);font-size:20px;font-weight:600;margin-bottom:10px}
+.sess-end p{color:var(--muted);font-size:13px;margin-bottom:28px}
+.end-stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.end-s .en{font-family:var(--mono);font-size:26px;font-weight:600;display:block}
+.end-s .el{font-size:11px;color:var(--muted)}
+.end-ok .en{color:var(--ens)}.end-ko .en{color:var(--red)}.end-sk .en{color:var(--muted)}
+.end-pct{font-family:var(--mono);font-size:16px;margin-bottom:24px}
+
+/* ── CROSS MODE ── */
+.cross-intro{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:24px}
+.cross-intro h3{font-family:var(--mono);font-size:14px;font-weight:600;margin-bottom:8px;color:var(--cross)}
+.cross-intro p{font-size:12px;color:var(--muted);line-height:1.7}
+.norm-badges{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.nbadge{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:4px 10px;border-radius:3px;border:1px solid}
+.nb-ens{color:var(--ens);border-color:var(--ens);background:rgba(0,208,132,.08)}
+.nb-iso{color:var(--iso);border-color:var(--iso);background:rgba(77,159,255,.08)}
+.nb-nis{color:var(--nis);border-color:var(--nis);background:rgba(192,132,252,.08)}
+
+/* cross result cards */
+.cross-domain{background:var(--surf);border:1px solid var(--border);border-radius:6px;margin-bottom:10px;overflow:hidden}
+.cross-domain-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;transition:background .15s}
+.cross-domain-hdr:hover{background:var(--surf2)}
+.cdh-left{display:flex;align-items:center;gap:10px}
+.cdh-title{font-family:var(--mono);font-size:12px;font-weight:600}
+.cdh-score{font-family:var(--mono);font-size:11px}
+.cdh-arrow{font-family:var(--mono);font-size:11px;color:var(--muted);transition:transform .2s}
+.cross-domain.open .cdh-arrow{transform:rotate(90deg)}
+.cross-domain-body{display:none;padding:0 16px 14px}
+.cross-domain.open .cross-domain-body{display:block}
+.cross-ctrl-row{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;padding:8px 10px;border-radius:3px;margin-bottom:3px;font-size:11px;border:1px solid var(--border)}
+.ccr-q{color:var(--text);line-height:1.4}
+.norm-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.norm-dot-ens{background:var(--ens)}.norm-dot-iso{background:var(--iso)}.norm-dot-nis{background:var(--nis)}
+.cross-score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.csg-card{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center}
+.csg-name{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.csg-pct{font-family:var(--mono);font-size:28px;font-weight:600}
+.csg-card.c-ens .csg-name{color:var(--ens)}.csg-card.c-ens .csg-pct{color:var(--ens)}
+.csg-card.c-iso .csg-name{color:var(--iso)}.csg-card.c-iso .csg-pct{color:var(--iso)}
+.csg-card.c-nis .csg-name{color:var(--nis)}.csg-card.c-nis .csg-pct{color:var(--nis)}
+
+@media print{.hdr,.back-btn,.act-row,.nav-row{display:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-logo" onclick="goHub()"><span class="dot"></span>GRC Toolkit</div>
+  <nav class="hdr-nav">
+    <button class="hn" id="hn-hub" onclick="goHub()">Inicio</button>
+    <button class="hn ens" id="hn-ens" onclick="goTool('ens')">ENS</button>
+    <button class="hn iso" id="hn-iso" onclick="goTool('iso')">ISO 27001</button>
+    <button class="hn nis" id="hn-nis" onclick="goTool('nis')">NIS2</button>
+    <button class="hn cross" id="hn-cross" onclick="goTool('cross')">Cruzado</button>
+    <button class="hn" id="hn-flash" onclick="goTool('flash')">Estudio</button>
+  </nav>
+</header>
+
+<div class="main">
+
+<!-- HUB -->
+<div class="screen active" id="screen-hub">
+  <div class="hub">
+    <div class="hub-eye">GRC Toolkit · Compliance &amp; Normativa</div>
+    <h1 class="hub-h">Tres normativas.<br><span class="c-ens">ENS</span> · <span class="c-iso">ISO 27001</span> · <span class="c-nis">NIS2</span></h1>
+    <p class="hub-sub">Diagnostica el cumplimiento de tu organización frente a las principales normativas de ciberseguridad. Evalúa por separado o en modo cruzado.</p>
+    <div class="hub-grid">
+      <div class="hcard c-ens" onclick="goTool('ens')">
+        <div class="hcard-num"><span style="background:var(--ens)"></span>01 · DIAGNÓSTICO</div>
+        <span class="hcard-ico"></span>
+        <div class="hcard-title">ENS</div>
+        <p class="hcard-desc">Esquema Nacional de Seguridad. 75 medidas con lógica de niveles Básico, Medio y Alto.</p>
+        <div class="hcard-tags"><span class="tag tg">75 medidas</span><span class="tag tg">3 niveles</span><span class="tag tm">RD 311/2022</span></div>
+        <div class="hcard-cta">Evaluar →</div>
+      </div>
+      <div class="hcard c-iso" onclick="goTool('iso')">
+        <div class="hcard-num"><span style="background:var(--iso)"></span>02 · DIAGNÓSTICO</div>
+        <span class="hcard-ico"></span>
+        <div class="hcard-title">ISO 27001:2022</div>
+        <p class="hcard-desc">93 controles del Anexo A reorganizados en 4 dominios. Versión 2022.</p>
+        <div class="hcard-tags"><span class="tag tb">93 controles</span><span class="tag tb">4 dominios</span><span class="tag tm">ISO/IEC 27001</span></div>
+        <div class="hcard-cta">Evaluar →</div>
+      </div>
+      <div class="hcard c-nis" onclick="goTool('nis')">
+        <div class="hcard-num"><span style="background:var(--nis)"></span>03 · DIAGNÓSTICO</div>
+        <span class="hcard-ico"></span>
+        <div class="hcard-title">NIS2</div>
+        <p class="hcard-desc">Directiva europea de seguridad de redes y sistemas. 10 áreas de obligación.</p>
+        <div class="hcard-tags"><span class="tag tp">10 áreas</span><span class="tag tp">UE 2022/2555</span><span class="tag tm">Entidades esenciales</span></div>
+        <div class="hcard-cta">Evaluar →</div>
+      </div>
+    </div>
+    <div class="hub-grid-bottom" style="margin-top:14px">
+      <div class="hcard c-cross" onclick="goTool('cross')" style="grid-column:1/3">
+        <div class="hcard-num"><span style="background:var(--cross)"></span>04 · DIAGNÓSTICO CRUZADO</div>
+        <span class="hcard-ico"></span>
+        <div class="hcard-title">Evaluación combinada — ENS + ISO 27001 + NIS2</div>
+        <p class="hcard-desc">Un solo cuestionario que evalúa las tres normativas simultáneamente. Identifica controles solapados y gaps por normativa.</p>
+        <div class="hcard-tags"><span class="tag tg">ENS</span><span class="tag tb">ISO 27001</span><span class="tag tp">NIS2</span><span class="tag ta">Solapamientos</span></div>
+        <div class="hcard-cta">Iniciar evaluación cruzada →</div>
+      </div>
+      <div class="hcard" onclick="goTool('flash')" style="border-color:var(--border2)">
+        <div class="hcard-num"><span style="background:var(--muted)"></span>05 · ESTUDIO</div>
+        <span class="hcard-ico"></span>
+        <div class="hcard-title">Flashcards</div>
+        <p class="hcard-desc">Estudia todas las normativas con tarjetas interactivas. Filtra por normativa, dominio y nivel.</p>
+        <div class="hcard-tags"><span class="tag tg">ENS</span><span class="tag tb">ISO</span><span class="tag tp">NIS2</span></div>
+        <div class="hcard-cta" style="color:var(--muted)">Estudiar →</div>
+      </div>
+    </div>
+    <div class="hub-stats">
+      <div class="hstat"><span class="hn2">75</span><div class="hl">Medidas ENS</div></div>
+      <div class="hstat"><span class="hn2" style="color:var(--iso)">93</span><div class="hl">Controles ISO 27001</div></div>
+      <div class="hstat"><span class="hn2" style="color:var(--nis)">10</span><div class="hl">Áreas NIS2</div></div>
+      <div class="hstat"><span class="hn2" style="color:var(--cross)">3</span><div class="hl">Normativas cubiertas</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ENS SCREEN -->
+<div class="screen" id="screen-ens">
+  <div class="twrap">
+    <button class="back-btn" onclick="goHub()">← Inicio</button>
+    <div id="ens-content"></div>
+  </div>
+</div>
+
+<!-- ISO SCREEN -->
+<div class="screen" id="screen-iso">
+  <div class="twrap">
+    <button class="back-btn" onclick="goHub()">← Inicio</button>
+    <div id="iso-content"></div>
+  </div>
+</div>
+
+<!-- NIS SCREEN -->
+<div class="screen" id="screen-nis">
+  <div class="twrap">
+    <button class="back-btn" onclick="goHub()">← Inicio</button>
+    <div id="nis-content"></div>
+  </div>
+</div>
+
+<!-- CROSS SCREEN -->
+<div class="screen" id="screen-cross">
+  <div class="twrap">
+    <button class="back-btn" onclick="goHub()">← Inicio</button>
+    <div id="cross-content"></div>
+  </div>
+</div>
+
+<!-- FLASH SCREEN -->
+<div class="screen" id="screen-flash">
+  <div class="twrap">
+    <button class="back-btn" onclick="goHub()">← Inicio</button>
+    <div id="flash-content"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA — ENS (75 medidas)
+// ═══════════════════════════════════════════════════════════
+const ENS = [
+  {id:"org.1",dom:"Marco Organizativo",nombre:"Política de seguridad",niv:"basico",prio:"alta",q:"¿Existe una política de seguridad aprobada formalmente por la dirección?",rem:"Redactar y aprobar un documento de Política de Seguridad firmado por la dirección, con revisión anual."},
+  {id:"org.2",dom:"Marco Organizativo",nombre:"Normativa de seguridad",niv:"basico",prio:"alta",q:"¿Existe normativa de seguridad que desarrolle la política (uso aceptable, contraseñas, teletrabajo)?",rem:"Desarrollar normativas específicas: uso aceptable, contraseñas, teletrabajo y clasificación de la información."},
+  {id:"org.3",dom:"Marco Organizativo",nombre:"Procedimientos de seguridad",niv:"basico",prio:"media",q:"¿Existen procedimientos documentados para tareas habituales de seguridad (backups, incidentes, altas/bajas)?",rem:"Documentar procedimientos operativos de seguridad para las tareas recurrentes más críticas."},
+  {id:"org.4",dom:"Marco Organizativo",nombre:"Proceso de autorización",niv:"basico",prio:"media",q:"¿Existe proceso formal de autorización para puesta en servicio de nuevos sistemas?",rem:"Implementar proceso de aprobación formal (acreditación) antes de poner en producción nuevos sistemas."},
+  {id:"op.pl.1",dom:"Planificación",nombre:"Análisis de riesgos",niv:"basico",prio:"alta",q:"¿Se realiza un análisis de riesgos de seguridad de forma periódica?",rem:"Realizar análisis de riesgos con metodología reconocida (MAGERIT, ISO 27005) al menos anualmente."},
+  {id:"op.pl.2",dom:"Planificación",nombre:"Arquitectura de seguridad",niv:"basico",prio:"media",q:"¿Existe documentación de la arquitectura de seguridad (diagrama de red, flujos de datos)?",rem:"Documentar la arquitectura de seguridad incluyendo diagramas de red, flujos de datos y zonas de seguridad."},
+  {id:"op.pl.3",dom:"Planificación",nombre:"Adquisición de componentes",niv:"basico",prio:"baja",q:"¿Se tienen en cuenta requisitos de seguridad en la adquisición de nuevos sistemas o servicios?",rem:"Incluir requisitos de seguridad en los pliegos de contratación y procesos de adquisición."},
+  {id:"op.pl.4",dom:"Planificación",nombre:"Gestión de capacidad",niv:"medio",prio:"media",q:"¿Se planifica la capacidad de los sistemas para garantizar la disponibilidad requerida?",rem:"Implementar gestión de capacidad: monitorizar tendencias de uso y planificar ampliaciones."},
+  {id:"op.pl.5",dom:"Planificación",nombre:"Componentes certificados",niv:"alto",prio:"media",q:"¿Se utilizan productos con certificación de seguridad reconocida cuando están disponibles?",rem:"Priorizar uso de productos con certificación Common Criteria u equivalente para componentes críticos."},
+  {id:"op.acc.1",dom:"Control de Acceso",nombre:"Identificación",niv:"basico",prio:"alta",q:"¿Cada usuario tiene una cuenta individual y única para acceder a los sistemas?",rem:"Eliminar cuentas compartidas. Garantizar que cada persona tenga su propio identificador único."},
+  {id:"op.acc.2",dom:"Control de Acceso",nombre:"Requisitos de acceso",niv:"basico",prio:"alta",q:"¿Están definidos y documentados los requisitos de acceso a cada sistema o recurso?",rem:"Documentar qué usuarios/roles tienen acceso a cada sistema, aplicando principio de mínimo privilegio."},
+  {id:"op.acc.3",dom:"Control de Acceso",nombre:"Segregación de funciones",niv:"medio",prio:"alta",q:"¿Se segregan funciones críticas para que ningún usuario tenga control completo de un proceso crítico?",rem:"Implementar segregación de funciones: separar roles de administración, operación y auditoría."},
+  {id:"op.acc.4",dom:"Control de Acceso",nombre:"Gestión de derechos",niv:"basico",prio:"alta",q:"¿Existe proceso formal de alta, baja y modificación de permisos de usuario?",rem:"Implementar proceso formal de gestión del ciclo de vida de cuentas con aprobación y revisión periódica."},
+  {id:"op.acc.5",dom:"Control de Acceso",nombre:"Autenticación usuarios externos",niv:"basico",prio:"alta",q:"¿Los usuarios externos o remotos se autentican con mecanismos robustos (MFA, certificados)?",rem:"Implementar autenticación multifactor (MFA) para todos los accesos remotos y externos."},
+  {id:"op.acc.6",dom:"Control de Acceso",nombre:"Política de contraseñas",niv:"basico",prio:"alta",q:"¿Se aplica una política de contraseñas robusta (longitud mínima, complejidad, caducidad)?",rem:"Configurar política de contraseñas: mínimo 12 caracteres, complejidad, caducidad máx. 90 días."},
+  {id:"op.acc.7",dom:"Control de Acceso",nombre:"Cuentas privilegiadas",niv:"medio",prio:"alta",q:"¿Las cuentas con privilegios de administración son distintas de las cuentas de uso cotidiano?",rem:"Separar cuentas administrativas de cuentas de usuario estándar."},
+  {id:"op.exp.1",dom:"Explotación",nombre:"Inventario de activos",niv:"basico",prio:"media",q:"¿Existe un inventario actualizado de todos los activos de información (hardware, software, datos)?",rem:"Crear y mantener un inventario de activos con propietario, clasificación, ubicación y estado."},
+  {id:"op.exp.2",dom:"Explotación",nombre:"Hardening de sistemas",niv:"basico",prio:"alta",q:"¿Se aplican configuraciones de seguridad endurecidas (hardening) en sistemas y servicios?",rem:"Aplicar guías de hardening (CIS Benchmarks, CCN-STIC) a sistemas operativos, servidores y red."},
+  {id:"op.exp.3",dom:"Explotación",nombre:"Gestión de la configuración",niv:"basico",prio:"media",q:"¿Se gestiona y documenta la configuración de los sistemas, controlando los cambios?",rem:"Implementar gestión de configuración con CMDB o similar. Controlar cambios mediante proceso formal."},
+  {id:"op.exp.4",dom:"Explotación",nombre:"Gestión de parches",niv:"basico",prio:"alta",q:"¿Se aplican parches de seguridad de forma regular y dentro de los plazos establecidos?",rem:"Establecer proceso de gestión de parches con priorización por criticidad y ventanas de mantenimiento."},
+  {id:"op.exp.5",dom:"Explotación",nombre:"Gestión de cambios",niv:"basico",prio:"media",q:"¿Existe proceso formal de gestión de cambios con evaluación de impacto en seguridad?",rem:"Implementar proceso de gestión de cambios: evaluación de impacto, aprobación, pruebas y rollback."},
+  {id:"op.exp.6",dom:"Explotación",nombre:"Antimalware",niv:"basico",prio:"alta",q:"¿Se dispone de soluciones antimalware actualizadas en todos los endpoints y servidores?",rem:"Desplegar solución EDR/antimalware con actualización automática de firmas."},
+  {id:"op.exp.7",dom:"Explotación",nombre:"Gestión de incidentes",niv:"basico",prio:"alta",q:"¿Existe procedimiento documentado para detección, notificación y respuesta a incidentes?",rem:"Desarrollar Plan de Respuesta a Incidentes con roles, procedimientos y canales de notificación (CCN-CERT)."},
+  {id:"op.exp.8",dom:"Explotación",nombre:"Registro de actividad",niv:"basico",prio:"alta",q:"¿Se registran los accesos e intentos de acceso a los sistemas y datos sensibles?",rem:"Habilitar logging de autenticación y accesos en todos los sistemas. Retener logs al menos 6 meses."},
+  {id:"op.exp.9",dom:"Explotación",nombre:"Registro de incidentes",niv:"basico",prio:"media",q:"¿Se registran y documentan todos los incidentes de seguridad y sus resoluciones?",rem:"Implementar sistema de ticketing o registro para documentar incidentes, acciones y lecciones aprendidas."},
+  {id:"op.exp.10",dom:"Explotación",nombre:"Gestión de claves criptográficas",niv:"medio",prio:"alta",q:"¿Existe política de gestión de claves criptográficas y certificados digitales?",rem:"Implementar gestión del ciclo de vida de claves: generación, almacenamiento en HSM, rotación y revocación."},
+  {id:"op.exp.11",dom:"Explotación",nombre:"Control acceso almacenamiento",niv:"medio",prio:"media",q:"¿Se controla el acceso a los sistemas de almacenamiento (NAS, SAN, cloud)?",rem:"Asegurar que los sistemas de almacenamiento requieren autenticación robusta y control de acceso basado en roles."},
+  {id:"op.ext.1",dom:"Servicios Externos",nombre:"Contratos con proveedores",niv:"basico",prio:"media",q:"¿Los contratos con proveedores incluyen cláusulas de seguridad y requisitos ENS/RGPD?",rem:"Revisar y actualizar contratos con proveedores para incluir cláusulas de seguridad y notificación de incidentes."},
+  {id:"op.ext.2",dom:"Servicios Externos",nombre:"Supervisión de proveedores",niv:"basico",prio:"media",q:"¿Se supervisa el cumplimiento de los acuerdos de seguridad con proveedores?",rem:"Establecer proceso de revisión periódica del cumplimiento de proveedores."},
+  {id:"op.ext.3",dom:"Servicios Externos",nombre:"Cadena de suministro",niv:"medio",prio:"alta",q:"¿Se evalúa la seguridad de la cadena de suministro software (dependencias, open source)?",rem:"Implementar análisis de composición de software (SCA). Verificar vulnerabilidades en dependencias."},
+  {id:"op.ext.4",dom:"Servicios Externos",nombre:"Interconexión de sistemas",niv:"basico",prio:"media",q:"¿Las interconexiones con sistemas externos están documentadas, autorizadas y protegidas?",rem:"Documentar todas las interconexiones externas e implementar controles en puntos de interconexión."},
+  {id:"op.cont.1",dom:"Continuidad",nombre:"Análisis de impacto (BIA)",niv:"medio",prio:"alta",q:"¿Se ha realizado un análisis de impacto de negocio (BIA) para identificar servicios críticos?",rem:"Realizar Business Impact Analysis (BIA) identificando procesos críticos, RTO, RPO y dependencias."},
+  {id:"op.cont.2",dom:"Continuidad",nombre:"Plan de continuidad",niv:"medio",prio:"alta",q:"¿Existe un Plan de Continuidad de Negocio (BCP) documentado y aprobado?",rem:"Desarrollar Plan de Continuidad con procedimientos, roles, contactos y criterios de activación."},
+  {id:"op.cont.3",dom:"Continuidad",nombre:"Pruebas del plan",niv:"medio",prio:"alta",q:"¿Se realizan pruebas o simulacros del plan de continuidad al menos una vez al año?",rem:"Planificar ejercicios de simulacro anuales. Documentar resultados y actualizar el plan."},
+  {id:"op.cont.4",dom:"Continuidad",nombre:"Medios alternativos",niv:"alto",prio:"alta",q:"¿Se dispone de infraestructura alternativa para mantener la operación ante un desastre?",rem:"Implementar infraestructura de respaldo (CPD alternativo, cloud failover) y procedimiento de conmutación."},
+  {id:"op.mon.1",dom:"Monitorización",nombre:"Detección de intrusiones",niv:"medio",prio:"alta",q:"¿Se dispone de sistema de detección/prevención de intrusiones (IDS/IPS o SIEM)?",rem:"Implementar SIEM o IDS/IPS para detección de comportamientos anómalos y alertas en tiempo real."},
+  {id:"op.mon.2",dom:"Monitorización",nombre:"Métricas de seguridad",niv:"medio",prio:"media",q:"¿Se miden y reportan métricas de seguridad a la dirección de forma periódica?",rem:"Definir KPIs de seguridad y reportarlos en cuadro de mando mensual."},
+  {id:"op.mon.3",dom:"Monitorización",nombre:"Vigilancia continua (SOC)",niv:"alto",prio:"alta",q:"¿Se realiza vigilancia continua (24/7) de los sistemas y alertas de seguridad?",rem:"Implementar capacidades SOC (propias o subcontratadas) para monitorización continua."},
+  {id:"mp.if.1",dom:"Instalaciones",nombre:"Control acceso físico",niv:"basico",prio:"alta",q:"¿Las instalaciones donde se alojan los sistemas tienen control de acceso físico?",rem:"Implementar control de acceso físico al CPD: tarjeta, biometría o llave. Registrar y revisar accesos."},
+  {id:"mp.if.2",dom:"Instalaciones",nombre:"Registro de personas",niv:"basico",prio:"media",q:"¿Se identifica y registra a las personas que acceden a las instalaciones críticas?",rem:"Implementar sistema de registro de visitas. Acompañar siempre a personas externas en áreas sensibles."},
+  {id:"mp.if.3",dom:"Instalaciones",nombre:"Acondicionamiento de locales",niv:"basico",prio:"media",q:"¿Los locales críticos cuentan con climatización, antiincendios y protección contra inundaciones?",rem:"Asegurar que el CPD tiene climatización, sistemas antiincendios, detección de agua y UPS."},
+  {id:"mp.if.4",dom:"Instalaciones",nombre:"UPS y generador",niv:"basico",prio:"alta",q:"¿Los sistemas críticos disponen de suministro eléctrico ininterrumpido (UPS) y generador?",rem:"Instalar SAI/UPS para sistemas críticos y generador con autonomía suficiente."},
+  {id:"mp.if.5",dom:"Instalaciones",nombre:"Protección frente a desastres",niv:"medio",prio:"media",q:"¿Se han evaluado y mitigado los riesgos de desastres naturales en las instalaciones?",rem:"Evaluar riesgos naturales e implementar medidas de mitigación. Considerar CPD alternativo."},
+  {id:"mp.if.6",dom:"Instalaciones",nombre:"Instalaciones alternativas",niv:"alto",prio:"alta",q:"¿Existen instalaciones alternativas para operar si el centro principal no está disponible?",rem:"Preparar instalaciones alternativas (CPD secundario o cloud) capaces de asumir operaciones críticas."},
+  {id:"mp.per.1",dom:"Personal",nombre:"Perfil de puestos",niv:"basico",prio:"media",q:"¿Las funciones de seguridad están documentadas en los perfiles/descripciones de puestos?",rem:"Actualizar descripciones de puestos para incluir responsabilidades de seguridad."},
+  {id:"mp.per.2",dom:"Personal",nombre:"Acuerdos de confidencialidad",niv:"basico",prio:"media",q:"¿Los empleados firman y conocen sus obligaciones de seguridad (confidencialidad, uso aceptable)?",rem:"Implementar proceso de firma de acuerdos de confidencialidad en el onboarding. Renovar anualmente."},
+  {id:"mp.per.3",dom:"Personal",nombre:"Concienciación",niv:"basico",prio:"media",q:"¿Se realizan acciones de concienciación en seguridad para todos los empleados?",rem:"Implementar plan de concienciación anual: phishing simulado, formación online, comunicaciones periódicas."},
+  {id:"mp.per.4",dom:"Personal",nombre:"Formación técnica",niv:"basico",prio:"media",q:"¿El personal técnico de seguridad recibe formación especializada y actualizada?",rem:"Asignar presupuesto y plan de formación para el equipo técnico de seguridad."},
+  {id:"mp.per.5",dom:"Personal",nombre:"Personal alternativo",niv:"alto",prio:"alta",q:"¿Existe personal alternativo para cubrir funciones críticas en caso de ausencia?",rem:"Documentar funciones críticas y garantizar que al menos dos personas puedan desempeñarlas."},
+  {id:"mp.eq.1",dom:"Equipos",nombre:"Puesto despejado",niv:"basico",prio:"baja",q:"¿Se aplica política de puesto de trabajo despejado (bloqueo de pantalla, documentos guardados)?",rem:"Implantar política de puesto despejado: bloqueo automático de pantalla, no dejar información sensible visible."},
+  {id:"mp.eq.2",dom:"Equipos",nombre:"Bloqueo de pantalla",niv:"basico",prio:"media",q:"¿Los equipos se bloquean automáticamente tras un período de inactividad?",rem:"Configurar bloqueo automático de pantalla tras máximo 5-10 minutos de inactividad."},
+  {id:"mp.eq.3",dom:"Equipos",nombre:"Cifrado de portátiles",niv:"basico",prio:"alta",q:"¿Los equipos portátiles tienen disco cifrado y están protegidos contra robo/pérdida?",rem:"Habilitar cifrado de disco completo (BitLocker, FileVault) en todos los portátiles. Implementar borrado remoto."},
+  {id:"mp.eq.4",dom:"Equipos",nombre:"Dispositivos IoT y red",niv:"basico",prio:"media",q:"¿Se controlan y gestionan los dispositivos IoT, impresoras y otros equipos conectados?",rem:"Inventariar todos los dispositivos. Cambiar credenciales por defecto, actualizar firmware y segmentar en VLAN."},
+  {id:"mp.eq.5",dom:"Equipos",nombre:"Medios de pago (PCI-DSS)",niv:"basico",prio:"baja",q:"¿Si se procesan medios de pago, se cumplen los requisitos PCI-DSS?",rem:"Evaluar el alcance PCI-DSS si se procesan tarjetas de pago e implementar los controles requeridos."},
+  {id:"mp.eq.6",dom:"Equipos",nombre:"MDM dispositivos móviles",niv:"medio",prio:"media",q:"¿Existe política de seguridad para dispositivos móviles (MDM, separación personal/corporativo)?",rem:"Implementar solución MDM para gestionar dispositivos móviles corporativos."},
+  {id:"mp.com.1",dom:"Comunicaciones",nombre:"Firewall perimetral",niv:"basico",prio:"alta",q:"¿Existe un perímetro de seguridad con firewall entre la red interna e Internet?",rem:"Implementar firewall perimetral con política 'denegar todo' por defecto, abriendo solo lo necesario."},
+  {id:"mp.com.2",dom:"Comunicaciones",nombre:"Cifrado en tránsito",niv:"basico",prio:"alta",q:"¿Todas las comunicaciones con información sensible están cifradas (HTTPS, TLS, VPN)?",rem:"Asegurar cifrado en tránsito: TLS 1.2+ en servicios web, VPN para acceso remoto."},
+  {id:"mp.com.3",dom:"Comunicaciones",nombre:"Integridad de comunicaciones",niv:"basico",prio:"alta",q:"¿Se verifica la autenticidad e integridad de las comunicaciones críticas?",rem:"Implementar verificación de certificados, deshabilitar versiones inseguras de TLS."},
+  {id:"mp.com.4",dom:"Comunicaciones",nombre:"Segregación de redes",niv:"basico",prio:"alta",q:"¿La red está segmentada separando entornos (producción, usuarios, DMZ, invitados)?",rem:"Segmentar la red con VLANs separando: usuarios, servidores, DMZ, gestión y red de invitados."},
+  {id:"mp.com.5",dom:"Comunicaciones",nombre:"Comunicaciones alternativas",niv:"alto",prio:"media",q:"¿Existen medios de comunicación alternativos si falla el enlace principal?",rem:"Implementar enlace de comunicaciones redundante (doble ISP) para sistemas críticos."},
+  {id:"mp.com.6",dom:"Comunicaciones",nombre:"Seguridad WiFi",niv:"basico",prio:"media",q:"¿Las redes WiFi corporativas utilizan WPA2/WPA3 y están separadas de la red de producción?",rem:"Configurar WiFi con WPA3-Enterprise. Separar WiFi de invitados de la red corporativa."},
+  {id:"mp.com.7",dom:"Comunicaciones",nombre:"VPN acceso remoto",niv:"basico",prio:"alta",q:"¿El acceso remoto se realiza mediante VPN con autenticación fuerte?",rem:"Asegurar que todo acceso remoto usa VPN con MFA. Deshabilitar RDP/SSH expuestos sin protección."},
+  {id:"mp.com.8",dom:"Comunicaciones",nombre:"SPF/DKIM/DMARC",niv:"basico",prio:"media",q:"¿Se han implementado SPF, DKIM, DMARC y filtros antispam en el correo corporativo?",rem:"Configurar SPF, DKIM y DMARC para el dominio corporativo. Implementar filtro antispam y antiphishing."},
+  {id:"mp.com.9",dom:"Comunicaciones",nombre:"WAF aplicaciones web",niv:"medio",prio:"alta",q:"¿Las aplicaciones web están protegidas mediante WAF?",rem:"Implementar WAF delante de aplicaciones web expuestas. Revisar OWASP Top 10."},
+  {id:"mp.si.1",dom:"Soportes",nombre:"Etiquetado de soportes",niv:"basico",prio:"baja",q:"¿Los soportes (USB, discos, documentos) se etiquetan según la clasificación de la información?",rem:"Implementar esquema de clasificación y etiquetar los soportes en consecuencia."},
+  {id:"mp.si.2",dom:"Soportes",nombre:"Cifrado de soportes",niv:"basico",prio:"alta",q:"¿Los soportes extraíbles con información sensible están cifrados?",rem:"Cifrar los soportes extraíbles. Prohibir el uso de USBs no cifrados para información corporativa."},
+  {id:"mp.si.3",dom:"Soportes",nombre:"Custodia de soportes",niv:"basico",prio:"media",q:"¿Existe proceso de custodia y control de soportes con información crítica?",rem:"Implementar registro de soportes: inventario, responsable, almacenamiento seguro y control de movimientos."},
+  {id:"mp.si.4",dom:"Soportes",nombre:"Transporte de información",niv:"basico",prio:"media",q:"¿El transporte de información sensible se realiza de forma segura?",rem:"Definir procedimientos para el transporte seguro: cifrado, mensajería certificada, cadena de custodia."},
+  {id:"mp.si.5",dom:"Soportes",nombre:"Borrado y destrucción",niv:"basico",prio:"media",q:"¿Existe proceso de borrado seguro o destrucción certificada de soportes?",rem:"Implementar proceso de destrucción/borrado seguro: DoD 5220.22-M o destrucción física certificada."},
+  {id:"mp.sw.1",dom:"Aplicaciones",nombre:"Desarrollo seguro (SSDLC)",niv:"basico",prio:"alta",q:"¿El desarrollo de aplicaciones sigue un ciclo seguro con revisiones de código y pruebas de seguridad?",rem:"Implementar Secure SDLC: revisión de código, SAST, pruebas de seguridad en preproducción."},
+  {id:"mp.sw.2",dom:"Aplicaciones",nombre:"Aceptación en producción",niv:"basico",prio:"media",q:"¿Las aplicaciones pasan por pruebas y aceptación de seguridad antes de ponerse en producción?",rem:"Establecer criterios de aceptación de seguridad. Incluir pruebas de penetración como gate."},
+  {id:"mp.sw.3",dom:"Aplicaciones",nombre:"Datos en entornos de prueba",niv:"basico",prio:"media",q:"¿Los entornos de prueba no utilizan datos reales de producción sin anonimizar?",rem:"Prohibir el uso de datos de producción reales en entornos no productivos. Usar datos sintéticos o anonimizados."},
+  {id:"mp.sw.4",dom:"Aplicaciones",nombre:"DAST en producción",niv:"medio",prio:"media",q:"¿Se realizan análisis de vulnerabilidades (DAST/SAST) periódicos sobre aplicaciones en producción?",rem:"Implementar análisis dinámico (DAST) periódico. Integrar escaneo en pipeline CI/CD."},
+  {id:"mp.info.1",dom:"Información",nombre:"RGPD",niv:"basico",prio:"alta",q:"¿Se cumplen los requisitos del RGPD (base legal, registro de actividades, derechos de interesados)?",rem:"Realizar auditoría RGPD: mapear tratamientos, documentar base legal, registrar actividades, nombrar DPO."},
+  {id:"mp.info.2",dom:"Información",nombre:"Clasificación de información",niv:"basico",prio:"media",q:"¿La información está clasificada según su sensibilidad y se gestiona según esa clasificación?",rem:"Implementar política de clasificación con criterios claros y controles asociados a cada nivel."},
+  {id:"mp.info.3",dom:"Información",nombre:"Cifrado en reposo",niv:"medio",prio:"alta",q:"¿La información sensible almacenada en bases de datos está cifrada en reposo?",rem:"Implementar cifrado en reposo: TDE en bases de datos, cifrado de filesystem para datos confidenciales."},
+  {id:"mp.info.4",dom:"Información",nombre:"Firma electrónica",niv:"medio",prio:"media",q:"¿Se utilizan firmas electrónicas para garantizar autenticidad e integridad de documentos críticos?",rem:"Implementar firma electrónica cualificada para documentos con validez legal."},
+  {id:"mp.info.5",dom:"Información",nombre:"Sellos de tiempo",niv:"alto",prio:"media",q:"¿Se utilizan sellos de tiempo certificados para evidencias digitales con valor probatorio?",rem:"Contratar servicio de sellado de tiempo (TSA) cualificado e integrar en procesos con valor legal."},
+  {id:"mp.info.6",dom:"Información",nombre:"Limpieza de metadatos",niv:"basico",prio:"baja",q:"¿Se eliminan los metadatos de los documentos antes de compartirlos externamente?",rem:"Implementar proceso de limpieza de metadatos antes del envío externo."},
+  {id:"mp.info.7",dom:"Información",nombre:"Copias de seguridad",niv:"basico",prio:"alta",q:"¿Se realizan copias de seguridad periódicas y se prueban los procesos de restauración?",rem:"Implementar política de backup: frecuencia, almacenamiento offsite o inmutable, pruebas de restauración trimestrales."},
+  {id:"mp.s.1",dom:"Servicios",nombre:"Seguridad del correo",niv:"basico",prio:"media",q:"¿El correo cuenta con filtros antispam, antiphishing y análisis de adjuntos?",rem:"Implementar solución de seguridad de correo con análisis de URLs, sandbox para adjuntos y anti-suplantación."},
+  {id:"mp.s.2",dom:"Servicios",nombre:"Protección de apps web",niv:"basico",prio:"alta",q:"¿Los servicios web expuestos a Internet tienen protecciones contra OWASP Top 10?",rem:"Revisar y corregir vulnerabilidades OWASP Top 10. Implementar cabeceras de seguridad HTTP y WAF."},
+  {id:"mp.s.3",dom:"Servicios",nombre:"Anti-DDoS",niv:"medio",prio:"media",q:"¿Se dispone de protección anti-DDoS en servicios críticos?",rem:"Contratar servicio anti-DDoS para servicios web críticos. Implementar rate limiting y filtrado."},
+  {id:"mp.s.4",dom:"Servicios",nombre:"Alta disponibilidad",niv:"alto",prio:"alta",q:"¿Existen medios alternativos para mantener servicios críticos ante fallos?",rem:"Implementar alta disponibilidad: balanceo de carga, failover automático, CDN."},
+  {id:"mp.s.5",dom:"Servicios",nombre:"Catálogo de servicios",niv:"basico",prio:"baja",q:"¿Existe un inventario actualizado de todos los servicios prestados con sus responsables?",rem:"Crear catálogo de servicios con propietario, criticidad, dependencias técnicas y SLA."},
+];
+// ═══════════════════════════════════════════════════════════
+// DATA — ISO 27001:2022 (93 controles, Anexo A)
+// ═══════════════════════════════════════════════════════════
+const ISO = [
+  // 5. Organizational Controls
+  {id:"5.1",dom:"Controles Organizativos",nombre:"Políticas de seguridad de la información",prio:"alta",q:"¿Existen políticas de seguridad de la información aprobadas por la dirección, publicadas y comunicadas?",rem:"Redactar, aprobar y comunicar formalmente las políticas de seguridad. Revisar al menos anualmente."},
+  {id:"5.2",dom:"Controles Organizativos",nombre:"Roles y responsabilidades de seguridad",prio:"alta",q:"¿Están definidos y asignados los roles y responsabilidades de seguridad de la información?",rem:"Definir formalmente roles: CISO, propietarios de activos, responsables de sistemas. Incluir en descripciones de puestos."},
+  {id:"5.3",dom:"Controles Organizativos",nombre:"Segregación de funciones",prio:"alta",q:"¿Se segregan funciones en conflicto para reducir el riesgo de acceso no autorizado o modificaciones?",rem:"Identificar funciones en conflicto e implementar controles: separación de roles, doble aprobación en procesos críticos."},
+  {id:"5.4",dom:"Controles Organizativos",nombre:"Responsabilidades de la dirección",prio:"alta",q:"¿La dirección exige activamente el cumplimiento de la política de seguridad y de las normas?",rem:"Formalizar el compromiso directivo: presentaciones periódicas, revisión de métricas, aprobación de excepciones."},
+  {id:"5.5",dom:"Controles Organizativos",nombre:"Contacto con autoridades",prio:"media",q:"¿Se mantiene contacto con autoridades relevantes (INCIBE, CCN-CERT, AEPD, policía)?",rem:"Documentar y mantener actualizados los contactos con autoridades. Establecer procedimiento de notificación."},
+  {id:"5.6",dom:"Controles Organizativos",nombre:"Contacto con grupos de interés",prio:"baja",q:"¿Se mantiene contacto con foros de seguridad e industria relevantes?",rem:"Participar en foros de seguridad sectoriales. Suscribirse a feeds de inteligencia de amenazas."},
+  {id:"5.7",dom:"Controles Organizativos",nombre:"Inteligencia de amenazas",prio:"alta",q:"¿Se recopila y analiza inteligencia sobre amenazas relevantes para la organización?",rem:"Implementar proceso de threat intelligence: suscripción a feeds, análisis de amenazas sectoriales, informes periódicos."},
+  {id:"5.8",dom:"Controles Organizativos",nombre:"Seguridad en gestión de proyectos",prio:"media",q:"¿Se integra la seguridad de la información en la gestión de proyectos?",rem:"Incluir requisitos de seguridad en la metodología de gestión de proyectos. Nombrar responsable de seguridad en proyectos."},
+  {id:"5.9",dom:"Controles Organizativos",nombre:"Inventario de activos",prio:"alta",q:"¿Existe un inventario de activos de información identificados, clasificados y con propietario asignado?",rem:"Crear y mantener inventario de activos con propietario, clasificación, ubicación y estado. Revisar periódicamente."},
+  {id:"5.10",dom:"Controles Organizativos",nombre:"Uso aceptable de activos",prio:"media",q:"¿Existen normas de uso aceptable de activos documentadas y comunicadas a los empleados?",rem:"Documentar política de uso aceptable de recursos TI. Incluir en el onboarding y obtener firma de aceptación."},
+  {id:"5.11",dom:"Controles Organizativos",nombre:"Devolución de activos",prio:"media",q:"¿Existe proceso para asegurar la devolución de activos cuando cesa la relación laboral?",rem:"Implementar checklist de offboarding que incluya devolución de dispositivos, credenciales y accesos."},
+  {id:"5.12",dom:"Controles Organizativos",nombre:"Clasificación de la información",prio:"alta",q:"¿La información está clasificada según su sensibilidad con esquema formal (público, interno, confidencial...)?",rem:"Implementar esquema de clasificación con criterios claros. Formar a los empleados sobre cómo aplicarla."},
+  {id:"5.13",dom:"Controles Organizativos",nombre:"Etiquetado de la información",prio:"media",q:"¿Existe procedimiento de etiquetado de información según su clasificación?",rem:"Implementar procedimientos de etiquetado en documentos digitales y físicos según clasificación."},
+  {id:"5.14",dom:"Controles Organizativos",nombre:"Transferencia de información",prio:"alta",q:"¿Existen normas y controles para la transferencia segura de información (acuerdos de confidencialidad, cifrado)?",rem:"Establecer acuerdos de confidencialidad, protocolos de transferencia cifrada y controles de envío de información sensible."},
+  {id:"5.15",dom:"Controles Organizativos",nombre:"Control de acceso",prio:"alta",q:"¿Existe una política de control de acceso basada en los requisitos de negocio y seguridad?",rem:"Documentar política de control de acceso con criterios claros de concesión/revocación basados en roles."},
+  {id:"5.16",dom:"Controles Organizativos",nombre:"Gestión de identidades",prio:"alta",q:"¿Existe proceso formal de gestión del ciclo de vida de identidades (alta, modificación, baja)?",rem:"Implementar proceso de Identity Lifecycle Management: solicitud, aprobación, provisión y baja automatizada."},
+  {id:"5.17",dom:"Controles Organizativos",nombre:"Información de autenticación",prio:"alta",q:"¿Se gestiona correctamente la información de autenticación (contraseñas, tokens) con políticas formales?",rem:"Implementar gestor de contraseñas, políticas de complejidad y rotación, y formación sobre autenticación segura."},
+  {id:"5.18",dom:"Controles Organizativos",nombre:"Derechos de acceso",prio:"alta",q:"¿Los derechos de acceso se conceden, revisan y revocan siguiendo el principio de mínimo privilegio?",rem:"Implementar revisiones periódicas de acceso (access reviews) y proceso de revocación inmediata en bajas."},
+  {id:"5.19",dom:"Controles Organizativos",nombre:"Seguridad en relaciones con proveedores",prio:"alta",q:"¿Existen políticas y controles para gestionar la seguridad en las relaciones con proveedores?",rem:"Desarrollar política de seguridad con proveedores: evaluación, requisitos contractuales y monitorización."},
+  {id:"5.20",dom:"Controles Organizativos",nombre:"Seguridad en contratos con proveedores",prio:"alta",q:"¿Los contratos con proveedores incluyen requisitos de seguridad apropiados?",rem:"Revisar y actualizar contratos de proveedores para incluir cláusulas de seguridad, auditoría y notificación de incidentes."},
+  {id:"5.21",dom:"Controles Organizativos",nombre:"Seguridad en la cadena de suministro TIC",prio:"alta",q:"¿Se gestiona la seguridad en la cadena de suministro de productos y servicios TIC?",rem:"Implementar análisis de composición de software (SCA) y evaluación de seguridad de proveedores TIC."},
+  {id:"5.22",dom:"Controles Organizativos",nombre:"Monitorización de servicios de proveedores",prio:"media",q:"¿Se monitoriza y revisa periódicamente el cumplimiento de los niveles de servicio de seguridad de proveedores?",rem:"Establecer proceso de revisión periódica de proveedores: informes, auditorías y seguimiento de incidentes."},
+  {id:"5.23",dom:"Controles Organizativos",nombre:"Seguridad en servicios en la nube",prio:"alta",q:"¿Se gestionan correctamente los aspectos de seguridad del uso de servicios cloud?",rem:"Implementar política de uso de cloud: evaluación de proveedores, configuración segura, cifrado y control de acceso."},
+  {id:"5.24",dom:"Controles Organizativos",nombre:"Planificación de la respuesta a incidentes",prio:"alta",q:"¿Existe un plan documentado de gestión de incidentes de seguridad de la información?",rem:"Desarrollar Plan de Respuesta a Incidentes con roles, procedimientos, clasificación y canales de comunicación."},
+  {id:"5.25",dom:"Controles Organizativos",nombre:"Evaluación de incidentes",prio:"alta",q:"¿Se evalúan los incidentes de seguridad para determinar su clasificación y prioridad?",rem:"Implementar proceso de clasificación de incidentes por impacto y urgencia. Documentar criterios de escalado."},
+  {id:"5.26",dom:"Controles Organizativos",nombre:"Respuesta a incidentes",prio:"alta",q:"¿Los incidentes de seguridad se responden siguiendo procedimientos documentados?",rem:"Asegurar que el equipo de respuesta conoce y sigue el procedimiento. Realizar simulacros periódicos."},
+  {id:"5.27",dom:"Controles Organizativos",nombre:"Aprendizaje de incidentes",prio:"media",q:"¿Se aprende de los incidentes de seguridad para mejorar los controles existentes?",rem:"Implementar proceso de lecciones aprendidas post-incidente. Actualizar controles y procedimientos según los hallazgos."},
+  {id:"5.28",dom:"Controles Organizativos",nombre:"Recopilación de evidencias",prio:"media",q:"¿Existe proceso para recopilar, preservar y gestionar evidencias de incidentes de seguridad?",rem:"Implementar procedimiento de gestión de evidencias digitales: cadena de custodia, herramientas forenses."},
+  {id:"5.29",dom:"Controles Organizativos",nombre:"Seguridad de la información en continuidad",prio:"alta",q:"¿Se incorporan los requisitos de seguridad de la información en los planes de continuidad de negocio?",rem:"Revisar y actualizar el BCP para incluir explícitamente los requisitos de seguridad de la información."},
+  {id:"5.30",dom:"Controles Organizativos",nombre:"Disponibilidad TIC para continuidad",prio:"alta",q:"¿Están preparadas las TIC para satisfacer los requisitos de disponibilidad en caso de disrupción?",rem:"Implementar arquitectura de alta disponibilidad y redundancia para sistemas críticos del BCP."},
+  {id:"5.31",dom:"Controles Organizativos",nombre:"Requisitos legales y contractuales",prio:"alta",q:"¿Se identifican y cumplen los requisitos legales, reglamentarios y contractuales aplicables?",rem:"Mantener registro actualizado de requisitos legales aplicables (RGPD, ENS, NIS2, etc.) y controles asociados."},
+  {id:"5.32",dom:"Controles Organizativos",nombre:"Derechos de propiedad intelectual",prio:"media",q:"¿Se respetan los derechos de propiedad intelectual en el uso de software y contenidos?",rem:"Implementar proceso de gestión de licencias software. Realizar auditorías periódicas de software instalado."},
+  {id:"5.33",dom:"Controles Organizativos",nombre:"Protección de registros",prio:"media",q:"¿Los registros de la organización están protegidos contra pérdida, destrucción, falsificación?",rem:"Implementar política de gestión de registros con períodos de retención, controles de acceso y backups."},
+  {id:"5.34",dom:"Controles Organizativos",nombre:"Privacidad y protección de datos personales",prio:"alta",q:"¿Se protege la privacidad y los datos personales según la legislación aplicable (RGPD)?",rem:"Realizar auditoría RGPD completa: mapeo de tratamientos, base legal, medidas de seguridad y derechos de interesados."},
+  {id:"5.35",dom:"Controles Organizativos",nombre:"Revisión independiente de seguridad",prio:"media",q:"¿Se realizan revisiones independientes de la seguridad de la información de forma periódica?",rem:"Planificar auditorías internas o externas de seguridad anuales. Revisar resultados y hacer seguimiento de hallazgos."},
+  {id:"5.36",dom:"Controles Organizativos",nombre:"Cumplimiento de políticas y normas",prio:"alta",q:"¿Los directivos verifican el cumplimiento de las políticas y normas de seguridad en sus áreas?",rem:"Implementar proceso de revisión del cumplimiento: autoevaluaciones, revisiones por área, indicadores de cumplimiento."},
+  {id:"5.37",dom:"Controles Organizativos",nombre:"Procedimientos de operación documentados",prio:"media",q:"¿Los procedimientos de operación de los sistemas de información están documentados y disponibles?",rem:"Documentar y mantener actualizados los procedimientos operativos de seguridad para las tareas recurrentes."},
+  // 6. People Controls
+  {id:"6.1",dom:"Controles de Personas",nombre:"Selección de personal",prio:"alta",q:"¿Se verifican los antecedentes de los candidatos antes de la contratación (referencias, titulaciones)?",rem:"Implementar proceso de background check en contrataciones según legislación aplicable y nivel de confianza del puesto."},
+  {id:"6.2",dom:"Controles de Personas",nombre:"Términos y condiciones de empleo",prio:"alta",q:"¿Los contratos incluyen responsabilidades de seguridad de la información del empleado?",rem:"Revisar contratos laborales para incluir cláusulas de confidencialidad, uso aceptable y responsabilidades de seguridad."},
+  {id:"6.3",dom:"Controles de Personas",nombre:"Concienciación, educación y formación",prio:"alta",q:"¿Todos los empleados reciben formación adecuada en seguridad de la información y la actualizan periódicamente?",rem:"Implementar plan anual de formación y concienciación: onboarding, formación específica por rol, actualizaciones anuales."},
+  {id:"6.4",dom:"Controles de Personas",nombre:"Proceso disciplinario",prio:"media",q:"¿Existe un proceso disciplinario formal para empleados que cometan brechas de seguridad?",rem:"Documentar proceso disciplinario para incidentes de seguridad, en coordinación con RRHH y legal."},
+  {id:"6.5",dom:"Controles de Personas",nombre:"Responsabilidades al cesar el empleo",prio:"alta",q:"¿Se gestionan correctamente las responsabilidades de seguridad al terminar la relación laboral (offboarding)?",rem:"Implementar checklist de offboarding: revocación de accesos, devolución de activos, recordatorio de obligaciones post-empleo."},
+  {id:"6.6",dom:"Controles de Personas",nombre:"Acuerdos de confidencialidad",prio:"alta",q:"¿Se firman acuerdos de confidencialidad con empleados y colaboradores que acceden a información sensible?",rem:"Implementar acuerdos de confidencialidad (NDA) en el onboarding y con proveedores que accedan a información sensible."},
+  {id:"6.7",dom:"Controles de Personas",nombre:"Trabajo en remoto",prio:"alta",q:"¿Existen políticas y controles de seguridad específicos para el trabajo en remoto y teletrabajo?",rem:"Desarrollar política de teletrabajo: VPN obligatoria, cifrado de dispositivos, separación de entornos personal/corporativo."},
+  {id:"6.8",dom:"Controles de Personas",nombre:"Notificación de eventos de seguridad",prio:"alta",q:"¿Los empleados saben cómo reportar eventos e incidentes de seguridad y lo hacen activamente?",rem:"Comunicar claramente los canales de reporte de incidentes. Fomentar la cultura de reporte sin represalias."},
+  // 7. Physical Controls
+  {id:"7.1",dom:"Controles Físicos",nombre:"Perímetros de seguridad física",prio:"alta",q:"¿Existen perímetros de seguridad física definidos para proteger las instalaciones y centros de datos?",rem:"Implementar perímetros de seguridad física: vallas, control de acceso, cámaras, señalización de zonas restringidas."},
+  {id:"7.2",dom:"Controles Físicos",nombre:"Controles de entrada física",prio:"alta",q:"¿El acceso físico a las áreas seguras está controlado y se registran las entradas y salidas?",rem:"Implementar control de acceso físico con tarjeta/biometría. Mantener registros de acceso. Revisar autorizaciones periódicamente."},
+  {id:"7.3",dom:"Controles Físicos",nombre:"Seguridad de oficinas, salas e instalaciones",prio:"alta",q:"¿Las oficinas, salas de servidores e instalaciones críticas tienen medidas de seguridad física adecuadas?",rem:"Asegurar que las áreas sensibles tienen cerraduras, cámaras, alarmas y controles de acceso diferenciados."},
+  {id:"7.4",dom:"Controles Físicos",nombre:"Monitorización de seguridad física",prio:"media",q:"¿Las instalaciones se monitorizan continuamente para detectar accesos no autorizados?",rem:"Implementar sistema CCTV y alarmas con monitorización. Revisar periódicamente las grabaciones ante incidentes."},
+  {id:"7.5",dom:"Controles Físicos",nombre:"Protección contra amenazas físicas y ambientales",prio:"alta",q:"¿Se protegen las instalaciones frente a amenazas físicas como incendio, inundación, terremoto?",rem:"Implementar sistemas de detección y supresión de incendios, control de temperatura y humedad, y protección anti-inundación."},
+  {id:"7.6",dom:"Controles Físicos",nombre:"Trabajo en áreas seguras",prio:"media",q:"¿Existen procedimientos para trabajar de forma segura en áreas protegidas?",rem:"Implementar procedimientos para trabajo en áreas seguras: acompañamiento de visitas, normas de comportamiento, limpieza de mesa."},
+  {id:"7.7",dom:"Controles Físicos",nombre:"Política de escritorio y pantalla despejada",prio:"media",q:"¿Se aplica una política de escritorio despejado (documentos guardados, pantalla bloqueada)?",rem:"Implantar política de puesto despejado: bloqueo automático de pantalla, archivos guardados, no dejar soportes visibles."},
+  {id:"7.8",dom:"Controles Físicos",nombre:"Emplazamiento y protección de equipos",prio:"alta",q:"¿Los equipos están ubicados y protegidos para minimizar los riesgos de amenazas ambientales y accesos no autorizados?",rem:"Ubicar servidores en racks cerrados con acceso controlado. Proteger equipos de usuario contra robo."},
+  {id:"7.9",dom:"Controles Físicos",nombre:"Seguridad de activos fuera de las instalaciones",prio:"alta",q:"¿Los activos que se usan fuera de las instalaciones (portátiles, móviles) están protegidos adecuadamente?",rem:"Implementar cifrado de disco, VPN obligatoria, borrado remoto y política de uso de dispositivos fuera de oficina."},
+  {id:"7.10",dom:"Controles Físicos",nombre:"Soportes de almacenamiento",prio:"alta",q:"¿Los soportes de almacenamiento se gestionan, utilizan, transportan y destruyen de forma segura?",rem:"Implementar procedimientos de gestión de soportes: inventario, cifrado, transporte seguro y destrucción certificada."},
+  {id:"7.11",dom:"Controles Físicos",nombre:"Servicios de suministro",prio:"alta",q:"¿Los suministros básicos (electricidad, agua, climatización) están protegidos frente a fallos?",rem:"Instalar UPS, generadores y sistemas de climatización redundantes. Realizar pruebas periódicas."},
+  {id:"7.12",dom:"Controles Físicos",nombre:"Seguridad del cableado",prio:"media",q:"¿El cableado de comunicaciones está protegido frente a interceptación, interferencia o daño?",rem:"Documentar el esquema de cableado. Proteger el cableado en conductos. Separar cableado de voz, datos y energía."},
+  {id:"7.13",dom:"Controles Físicos",nombre:"Mantenimiento de equipos",prio:"media",q:"¿Los equipos se mantienen correctamente para asegurar su disponibilidad e integridad?",rem:"Implementar plan de mantenimiento preventivo. Asegurar que solo personal autorizado realiza mantenimiento."},
+  {id:"7.14",dom:"Controles Físicos",nombre:"Eliminación o reutilización segura de equipos",prio:"alta",q:"¿Antes de eliminar o reutilizar equipos se asegura la destrucción completa de la información?",rem:"Implementar proceso de borrado seguro (DoD 5220.22-M) o destrucción física de discos antes de dar de baja equipos."},
+  // 8. Technological Controls
+  {id:"8.1",dom:"Controles Tecnológicos",nombre:"Dispositivos de usuario final",prio:"alta",q:"¿Los dispositivos de usuario final (PCs, portátiles, móviles) están gestionados y protegidos mediante política formal?",rem:"Implementar política de gestión de endpoints: MDM/UEM, cifrado, antimalware, actualizaciones automáticas."},
+  {id:"8.2",dom:"Controles Tecnológicos",nombre:"Derechos de acceso privilegiado",prio:"alta",q:"¿Los derechos de acceso privilegiado están restringidos, gestionados y monitorizados de forma estricta?",rem:"Implementar PAM (Privileged Access Management). Usar cuentas separadas para uso diario y privilegiado."},
+  {id:"8.3",dom:"Controles Tecnológicos",nombre:"Restricción de acceso a la información",prio:"alta",q:"¿El acceso a la información y sistemas está restringido según la política de control de acceso?",rem:"Implementar control de acceso basado en roles (RBAC). Revisar periódicamente los permisos asignados."},
+  {id:"8.4",dom:"Controles Tecnológicos",nombre:"Acceso al código fuente",prio:"alta",q:"¿El acceso al código fuente de las aplicaciones está restringido y controlado?",rem:"Implementar control de acceso al repositorio de código: permisos por rol, revisión de código, registro de cambios."},
+  {id:"8.5",dom:"Controles Tecnológicos",nombre:"Autenticación segura",prio:"alta",q:"¿Se implementan mecanismos de autenticación segura (MFA) en accesos a sistemas críticos?",rem:"Implementar MFA para todos los accesos a sistemas críticos. Eliminar contraseñas débiles y cuentas compartidas."},
+  {id:"8.6",dom:"Controles Tecnológicos",nombre:"Gestión de la capacidad",prio:"media",q:"¿Se monitoriza y gestiona el uso de recursos para asegurar la disponibilidad requerida?",rem:"Implementar monitorización de capacidad: CPU, memoria, almacenamiento, red. Planificar ampliaciones proactivamente."},
+  {id:"8.7",dom:"Controles Tecnológicos",nombre:"Protección contra malware",prio:"alta",q:"¿Existe protección contra malware implementada y actualizada regularmente?",rem:"Desplegar solución EDR/antimalware con actualización automática en todos los endpoints y servidores."},
+  {id:"8.8",dom:"Controles Tecnológicos",nombre:"Gestión de vulnerabilidades técnicas",prio:"alta",q:"¿Se gestionan las vulnerabilidades técnicas de los sistemas con un proceso formal?",rem:"Implementar proceso de gestión de vulnerabilidades: escaneos regulares, priorización, parcheo y verificación."},
+  {id:"8.9",dom:"Controles Tecnológicos",nombre:"Gestión de la configuración",prio:"alta",q:"¿Las configuraciones de los sistemas están documentadas, gestionadas y protegidas?",rem:"Implementar gestión de configuración con CMDB. Usar Infrastructure as Code. Aplicar CIS Benchmarks."},
+  {id:"8.10",dom:"Controles Tecnológicos",nombre:"Borrado de información",prio:"alta",q:"¿Se borra de forma segura la información almacenada en sistemas y soportes cuando ya no es necesaria?",rem:"Implementar política de borrado seguro y destrucción. Aplicar DoD 5220.22-M o equivalente. Documentar destrucciones."},
+  {id:"8.11",dom:"Controles Tecnológicos",nombre:"Enmascaramiento de datos",prio:"alta",q:"¿Se aplica enmascaramiento o anonimización de datos en entornos no productivos?",rem:"Implementar enmascaramiento de datos en entornos de desarrollo y pruebas. Usar datos sintéticos o anonimizados."},
+  {id:"8.12",dom:"Controles Tecnológicos",nombre:"Prevención de fuga de datos (DLP)",prio:"alta",q:"¿Se implementan medidas de prevención de fuga de datos (DLP) en canales de salida?",rem:"Implementar solución DLP para monitorizar y controlar la salida de información sensible (email, USB, cloud)."},
+  {id:"8.13",dom:"Controles Tecnológicos",nombre:"Copia de seguridad de la información",prio:"alta",q:"¿Se realizan y verifican copias de seguridad de la información y se prueban los procesos de restauración?",rem:"Implementar política de backup: frecuencia, almacenamiento offsite/inmutable, pruebas de restauración periódicas."},
+  {id:"8.14",dom:"Controles Tecnológicos",nombre:"Redundancia de instalaciones de procesamiento",prio:"alta",q:"¿Las instalaciones de procesamiento tienen suficiente redundancia para cumplir los requisitos de disponibilidad?",rem:"Implementar redundancia en componentes críticos: servidores, redes, almacenamiento. Configurar failover automático."},
+  {id:"8.15",dom:"Controles Tecnológicos",nombre:"Registro de actividad (logging)",prio:"alta",q:"¿Se registra la actividad de los usuarios, excepciones y eventos de seguridad?",rem:"Implementar logging centralizado (SIEM). Definir qué eventos registrar, períodos de retención y alertas."},
+  {id:"8.16",dom:"Controles Tecnológicos",nombre:"Actividades de monitorización",prio:"alta",q:"¿Se monitorizan las redes y sistemas para detectar comportamientos anómalos?",rem:"Implementar monitorización continua con SIEM/IDS. Definir alertas y procesos de respuesta."},
+  {id:"8.17",dom:"Controles Tecnológicos",nombre:"Sincronización de relojes",prio:"baja",q:"¿Los relojes de todos los sistemas están sincronizados con una fuente de tiempo fiable (NTP)?",rem:"Configurar sincronización NTP con fuentes autorizadas en todos los sistemas. Vital para correlación de logs."},
+  {id:"8.18",dom:"Controles Tecnológicos",nombre:"Uso de programas utilitarios privilegiados",prio:"alta",q:"¿El uso de herramientas con capacidades especiales (utilitarios del sistema) está restringido y controlado?",rem:"Inventariar herramientas privilegiadas. Restringir su uso a personal autorizado. Registrar su utilización."},
+  {id:"8.19",dom:"Controles Tecnológicos",nombre:"Instalación de software en sistemas en producción",prio:"alta",q:"¿La instalación de software en sistemas en producción está controlada mediante procedimientos formales?",rem:"Implementar proceso de aprobación para instalación de software. Usar lista blanca (allowlisting) donde sea posible."},
+  {id:"8.20",dom:"Controles Tecnológicos",nombre:"Seguridad en redes",prio:"alta",q:"¿Las redes están gestionadas y controladas con medidas de seguridad apropiadas?",rem:"Implementar segmentación de red, firewall, IDS/IPS, y monitorización del tráfico. Documentar la arquitectura de red."},
+  {id:"8.21",dom:"Controles Tecnológicos",nombre:"Seguridad de los servicios de red",prio:"alta",q:"¿Los acuerdos de servicios de red (internos y externos) incluyen requisitos de seguridad?",rem:"Incluir requisitos de seguridad en los SLA de servicios de red. Monitorizar el cumplimiento periódicamente."},
+  {id:"8.22",dom:"Controles Tecnológicos",nombre:"Segregación de redes",prio:"alta",q:"¿Los grupos de servicios, usuarios y sistemas de información están segregados en redes separadas?",rem:"Implementar segmentación de red con VLANs: usuarios, servidores, DMZ, OT/IoT, invitados."},
+  {id:"8.23",dom:"Controles Tecnológicos",nombre:"Filtrado web",prio:"media",q:"¿Se controla el acceso a sitios web externos para proteger a los usuarios de contenido malicioso?",rem:"Implementar filtrado web (proxy/DNS) para bloquear sitios maliciosos, phishing y contenido no apropiado."},
+  {id:"8.24",dom:"Controles Tecnológicos",nombre:"Uso de criptografía",prio:"alta",q:"¿Se aplican controles criptográficos apropiados para proteger la confidencialidad e integridad de la información?",rem:"Implementar política criptográfica: algoritmos aprobados, longitudes de clave, gestión de certificados."},
+  {id:"8.25",dom:"Controles Tecnológicos",nombre:"Ciclo de vida de desarrollo seguro",prio:"alta",q:"¿Se establecen y aplican reglas para el desarrollo seguro de software y sistemas?",rem:"Implementar Secure SDLC: requisitos de seguridad, revisión de código, SAST/DAST, pruebas de seguridad."},
+  {id:"8.26",dom:"Controles Tecnológicos",nombre:"Requisitos de seguridad en aplicaciones",prio:"alta",q:"¿Se identifican y aprueban los requisitos de seguridad al desarrollar o adquirir aplicaciones?",rem:"Incluir requisitos de seguridad en las especificaciones funcionales. Usar modelos de amenazas (threat modeling)."},
+  {id:"8.27",dom:"Controles Tecnológicos",nombre:"Arquitectura de sistemas seguros",prio:"alta",q:"¿Se establecen principios de arquitectura segura (security by design) en el desarrollo de sistemas?",rem:"Documentar principios de diseño seguro: defense-in-depth, least privilege, fail-safe defaults, zero trust."},
+  {id:"8.28",dom:"Controles Tecnológicos",nombre:"Codificación segura",prio:"alta",q:"¿Se aplican principios de codificación segura en el desarrollo de software?",rem:"Implementar estándares de codificación segura (OWASP, CERT). Incluir revisión de seguridad en code reviews."},
+  {id:"8.29",dom:"Controles Tecnológicos",nombre:"Pruebas de seguridad en desarrollo",prio:"alta",q:"¿Se realizan pruebas de seguridad durante el ciclo de desarrollo de sistemas?",rem:"Implementar pruebas de seguridad automatizadas en el pipeline CI/CD: SAST, DAST, SCA."},
+  {id:"8.30",dom:"Controles Tecnológicos",nombre:"Desarrollo externalizado",prio:"alta",q:"¿El desarrollo externalizado de software está supervisado y controlado desde el punto de vista de la seguridad?",rem:"Incluir requisitos de seguridad en los contratos de desarrollo externo. Revisar código y realizar pruebas independientes."},
+  {id:"8.31",dom:"Controles Tecnológicos",nombre:"Separación de entornos",prio:"alta",q:"¿Los entornos de desarrollo, pruebas y producción están separados y protegidos?",rem:"Mantener entornos separados con controles de acceso independientes. Prohibir datos reales en entornos no productivos."},
+  {id:"8.32",dom:"Controles Tecnológicos",nombre:"Gestión de cambios",prio:"alta",q:"¿Los cambios en los sistemas y redes están sujetos a procedimientos formales de gestión de cambios?",rem:"Implementar proceso de gestión de cambios: solicitud, evaluación de impacto, aprobación, prueba y rollback."},
+  {id:"8.33",dom:"Controles Tecnológicos",nombre:"Información de pruebas",prio:"alta",q:"¿La información usada en pruebas está seleccionada, protegida y gestionada adecuadamente?",rem:"Usar datos sintéticos o anonimizados en entornos de prueba. Controlar el acceso y destruir los datos al finalizar."},
+  {id:"8.34",dom:"Controles Tecnológicos",nombre:"Protección de sistemas durante auditorías",prio:"media",q:"¿Se acuerdan y controlan las pruebas de auditoría sobre sistemas en producción para minimizar el impacto?",rem:"Coordinar con auditores el alcance, horario y método de las pruebas. Obtener aprobación previa de la dirección."},
+];
+// ═══════════════════════════════════════════════════════════
+// DATA — NIS2 (Directiva UE 2022/2555 — 10 áreas)
+// ═══════════════════════════════════════════════════════════
+const NIS2 = [
+  // Área 1: Políticas de seguridad y análisis de riesgos
+  {id:"NIS2-1.1",dom:"Políticas y Análisis de Riesgos",nombre:"Política de seguridad de redes y sistemas",prio:"alta",q:"¿Existe una política de seguridad de redes y sistemas de información aprobada por la alta dirección?",rem:"Aprobar formalmente una política de seguridad de redes y sistemas. La dirección debe ser responsable de su cumplimiento (obligación explícita en NIS2 Art.20)."},
+  {id:"NIS2-1.2",dom:"Políticas y Análisis de Riesgos",nombre:"Análisis de riesgos de ciberseguridad",prio:"alta",q:"¿Se realiza un análisis de riesgos formal y periódico sobre los sistemas de redes e información?",rem:"Implementar proceso de análisis de riesgos periódico. NIS2 exige gestión basada en riesgos como base de las medidas de seguridad."},
+  {id:"NIS2-1.3",dom:"Políticas y Análisis de Riesgos",nombre:"Responsabilidad de la dirección",prio:"alta",q:"¿La alta dirección ha aprobado las medidas de gestión de riesgos de ciberseguridad y supervisa su implementación?",rem:"NIS2 Art.20 establece responsabilidad personal de los directivos. Implementar reporting periódico de ciberseguridad al órgano de gobierno."},
+  {id:"NIS2-1.4",dom:"Políticas y Análisis de Riesgos",nombre:"Formación de la dirección en ciberseguridad",prio:"alta",q:"¿Los miembros de la alta dirección reciben formación periódica en ciberseguridad?",rem:"NIS2 Art.20 obliga a la dirección a recibir formación en ciberseguridad y a fomentarla. Implementar programa de formación ejecutiva."},
+  // Área 2: Gestión de incidentes
+  {id:"NIS2-2.1",dom:"Gestión de Incidentes",nombre:"Procedimientos de gestión de incidentes",prio:"alta",q:"¿Existen procedimientos documentados para la detección, gestión y respuesta a incidentes de ciberseguridad?",rem:"Desarrollar Plan de Respuesta a Incidentes completo. NIS2 Art.21 exige capacidades de detección, respuesta y recuperación."},
+  {id:"NIS2-2.2",dom:"Gestión de Incidentes",nombre:"Notificación de incidentes significativos",prio:"alta",q:"¿Existe un proceso para notificar incidentes significativos a la autoridad competente en los plazos NIS2?",rem:"NIS2 exige: alerta temprana en 24h, notificación en 72h, informe final en 1 mes. Implementar proceso y designar responsable de notificación (INCIBE/CCN-CERT)."},
+  {id:"NIS2-2.3",dom:"Gestión de Incidentes",nombre:"Clasificación y priorización de incidentes",prio:"alta",q:"¿Se clasifican los incidentes para determinar su significatividad según los criterios NIS2?",rem:"Implementar matriz de clasificación de incidentes según impacto (usuarios afectados, pérdidas económicas, reputación). Documentar criterios de significatividad."},
+  {id:"NIS2-2.4",dom:"Gestión de Incidentes",nombre:"Comunicación a usuarios afectados",prio:"media",q:"¿Se tiene proceso para comunicar incidentes significativos a los usuarios afectados cuando es necesario?",rem:"NIS2 puede requerir notificación a usuarios. Implementar proceso de comunicación de crisis con plantillas y canales definidos."},
+  // Área 3: Continuidad de negocio
+  {id:"NIS2-3.1",dom:"Continuidad de Negocio",nombre:"Continuidad de negocio y gestión de crisis",prio:"alta",q:"¿Existe un plan de continuidad de negocio que incluya escenarios de ciberincidentes?",rem:"NIS2 Art.21 exige continuidad de negocio explícita ante ciberincidentes. Desarrollar BCP con escenarios específicos de ciberataque."},
+  {id:"NIS2-3.2",dom:"Continuidad de Negocio",nombre:"Recuperación de desastres (DRP)",prio:"alta",q:"¿Existe un Plan de Recuperación ante Desastres (DRP) con RTO y RPO definidos para sistemas críticos?",rem:"Implementar DRP con objetivos de recuperación (RTO/RPO) para cada sistema crítico. Probar periódicamente."},
+  {id:"NIS2-3.3",dom:"Continuidad de Negocio",nombre:"Gestión de crisis",prio:"alta",q:"¿Existe un plan de gestión de crisis cibernética con roles, comunicación y procedimientos definidos?",rem:"Desarrollar Playbook de Crisis Cibernética: roles, escalado, comunicación interna/externa, coordinación con autoridades."},
+  // Área 4: Seguridad de la cadena de suministro
+  {id:"NIS2-4.1",dom:"Cadena de Suministro",nombre:"Seguridad de proveedores y cadena de suministro",prio:"alta",q:"¿Se evalúa la ciberseguridad de los proveedores y de los productos/servicios que forman la cadena de suministro?",rem:"NIS2 Art.21 incluye expresamente la seguridad de la cadena de suministro. Implementar evaluación de proveedores con criterios de ciberseguridad."},
+  {id:"NIS2-4.2",dom:"Cadena de Suministro",nombre:"Requisitos de seguridad en contratos",prio:"alta",q:"¿Los contratos con proveedores incluyen requisitos explícitos de ciberseguridad y notificación de incidentes?",rem:"Incluir cláusulas de ciberseguridad en contratos: medidas mínimas, notificación de incidentes, auditorías y SLA de seguridad."},
+  {id:"NIS2-4.3",dom:"Cadena de Suministro",nombre:"Monitorización continua de proveedores",prio:"media",q:"¿Se monitoriza de forma continua el nivel de seguridad de los proveedores críticos?",rem:"Implementar proceso de revisión continua de proveedores: cuestionarios, auditorías, revisión de incidentes e indicadores de seguridad."},
+  // Área 5: Seguridad en adquisición, desarrollo y mantenimiento
+  {id:"NIS2-5.1",dom:"Seguridad en Desarrollo",nombre:"Seguridad en el ciclo de desarrollo de sistemas",prio:"alta",q:"¿Se integran requisitos y pruebas de seguridad en el ciclo de desarrollo y mantenimiento de sistemas?",rem:"Implementar Secure SDLC: threat modeling, revisión de código, SAST/DAST, pruebas de penetración antes de producción."},
+  {id:"NIS2-5.2",dom:"Seguridad en Desarrollo",nombre:"Gestión de vulnerabilidades y divulgación",prio:"alta",q:"¿Existe un proceso de gestión de vulnerabilidades y una política de divulgación responsable?",rem:"Implementar proceso de gestión de vulnerabilidades: escaneos regulares, priorización CVE, parcheo en plazos definidos. Establecer canal de reporte de vulnerabilidades."},
+  {id:"NIS2-5.3",dom:"Seguridad en Desarrollo",nombre:"Pruebas de seguridad periódicas",prio:"alta",q:"¿Se realizan pruebas de seguridad periódicas (pentesting, red team) sobre sistemas críticos?",rem:"Planificar pruebas de penetración anuales sobre sistemas y servicios críticos. Hacer seguimiento de los hallazgos."},
+  // Área 6: Políticas y procedimientos de evaluación
+  {id:"NIS2-6.1",dom:"Evaluación de Eficacia",nombre:"Evaluación de la eficacia de las medidas de seguridad",prio:"alta",q:"¿Se evalúa periódicamente la eficacia de las medidas de gestión de riesgos de ciberseguridad?",rem:"NIS2 Art.21 exige evaluación de la eficacia. Implementar métricas, auditorías internas y revisiones periódicas de los controles."},
+  {id:"NIS2-6.2",dom:"Evaluación de Eficacia",nombre:"Auditorías de ciberseguridad",prio:"alta",q:"¿Se realizan auditorías de ciberseguridad independientes de forma periódica?",rem:"Planificar auditorías internas o externas de ciberseguridad anuales. Compartir resultados con la dirección y hacer seguimiento."},
+  {id:"NIS2-6.3",dom:"Evaluación de Eficacia",nombre:"Indicadores y métricas de seguridad",prio:"media",q:"¿Se definen y monitorizan indicadores de seguridad (KPIs/KRIs) que se reportan a la dirección?",rem:"Definir cuadro de mando de ciberseguridad con métricas clave. Reportar periódicamente al órgano de gobierno."},
+  // Área 7: Prácticas básicas de higiene y formación
+  {id:"NIS2-7.1",dom:"Higiene y Formación",nombre:"Higiene básica en ciberseguridad",prio:"alta",q:"¿Se aplican prácticas básicas de higiene en ciberseguridad (parcheo, contraseñas, MFA, backups, antimalware)?",rem:"NIS2 Art.21 menciona explícitamente las prácticas básicas de higiene. Implementar y verificar todos los controles básicos de forma sistemática."},
+  {id:"NIS2-7.2",dom:"Higiene y Formación",nombre:"Formación en ciberseguridad para empleados",prio:"alta",q:"¿Todos los empleados reciben formación básica en ciberseguridad de forma regular?",rem:"Implementar programa de formación en ciberseguridad: concienciación básica, phishing simulado, roles específicos."},
+  {id:"NIS2-7.3",dom:"Higiene y Formación",nombre:"Uso de criptografía y cifrado",prio:"alta",q:"¿Se utilizan técnicas criptográficas apropiadas para proteger la información en tránsito y en reposo?",rem:"NIS2 Art.21 menciona explícitamente criptografía y cifrado. Implementar TLS 1.2+, cifrado de datos en reposo y gestión segura de claves."},
+  // Área 8: Seguridad de los recursos humanos
+  {id:"NIS2-8.1",dom:"Seguridad de RRHH",nombre:"Seguridad en selección de personal",prio:"media",q:"¿Se verifican los antecedentes del personal que accede a sistemas críticos?",rem:"Implementar proceso de verificación de antecedentes (background check) para personal con acceso a sistemas críticos."},
+  {id:"NIS2-8.2",dom:"Seguridad de RRHH",nombre:"Control de acceso y gestión de privilegios",prio:"alta",q:"¿El acceso a sistemas críticos sigue el principio de mínimo privilegio y se revisa periódicamente?",rem:"Implementar RBAC con revisiones periódicas de acceso. Aplicar Zero Trust: verificar siempre, no asumir confianza."},
+  {id:"NIS2-8.3",dom:"Seguridad de RRHH",nombre:"Procedimientos de offboarding",prio:"alta",q:"¿Al cesar la relación laboral se revocan de forma inmediata todos los accesos del empleado?",rem:"Implementar proceso automático de revocación de accesos en el offboarding. Incluir accesos a sistemas cloud y SaaS."},
+  // Área 9: Uso de autenticación multifactor y comunicaciones seguras
+  {id:"NIS2-9.1",dom:"Autenticación y Comunicaciones",nombre:"Autenticación multifactor (MFA)",prio:"alta",q:"¿Se utiliza autenticación multifactor o autenticación continua en todos los sistemas relevantes?",rem:"NIS2 Art.21 menciona MFA explícitamente. Implementar MFA en todos los accesos a sistemas críticos, VPN, correo y aplicaciones cloud."},
+  {id:"NIS2-9.2",dom:"Autenticación y Comunicaciones",nombre:"Comunicaciones de voz, vídeo y texto seguras",prio:"media",q:"¿Las comunicaciones internas críticas (voz, vídeo, mensajería) usan canales cifrados y seguros?",rem:"NIS2 Art.21 menciona comunicaciones seguras. Implementar soluciones de comunicación cifrada para reuniones y mensajería corporativa."},
+  {id:"NIS2-9.3",dom:"Autenticación y Comunicaciones",nombre:"Sistemas de comunicación de emergencia",prio:"media",q:"¿Existen sistemas de comunicación de emergencia seguros para usarse durante un ciberincidente?",rem:"Establecer canal de comunicación alternativo (fuera de banda) para usar durante incidentes cuando los sistemas normales están comprometidos."},
+  // Área 10: Seguridad física y ambiental
+  {id:"NIS2-10.1",dom:"Seguridad Física",nombre:"Seguridad física de instalaciones críticas",prio:"alta",q:"¿Las instalaciones que alojan sistemas críticos tienen medidas de seguridad física adecuadas?",rem:"Implementar control de acceso físico, CCTV y alarmas en instalaciones con sistemas críticos."},
+  {id:"NIS2-10.2",dom:"Seguridad Física",nombre:"Protección de sistemas críticos frente a amenazas físicas",prio:"alta",q:"¿Los sistemas críticos están protegidos frente a amenazas físicas como incendio, inundación o robo?",rem:"NIS2 incluye seguridad del entorno físico. Implementar protección antiincendios, UPS, climatización y controles anti-robo."},
+];
+// ═══════════════════════════════════════════════════════════
+// CROSS-DOMAIN DATA — preguntas que cubren las 3 normativas
+// ═══════════════════════════════════════════════════════════
+const CROSS_DOMAINS = [
+  {
+    name:"Gobernanza y Políticas",
+    color:"#00d084",
+    controles:[
+      {id:"GOV-1",q:"¿Existe una política de seguridad de la información aprobada formalmente por la dirección?",
+       ens:["org.1"],iso:["5.1","5.4"],nis:["NIS2-1.1","NIS2-1.3"],prio:"alta",
+       rem:"Redactar, aprobar y publicar política de seguridad. ENS: política firmada por dirección. ISO 27001 5.1: comprometida con SGSI. NIS2: responsabilidad directiva explícita."},
+      {id:"GOV-2",q:"¿Se realiza un análisis de riesgos periódico que cubra todos los activos de información?",
+       ens:["op.pl.1"],iso:["5.9"],nis:["NIS2-1.2"],prio:"alta",
+       rem:"Implementar análisis de riesgos con MAGERIT/ISO 27005. Cubre ENS op.pl.1, ISO 27001 cláusula 6.1 y NIS2 Art.21 (gestión basada en riesgos)."},
+      {id:"GOV-3",q:"¿Están definidos y comunicados los roles y responsabilidades de seguridad de la información?",
+       ens:["org.1"],iso:["5.2"],nis:["NIS2-1.3"],prio:"alta",
+       rem:"Documentar roles: CISO, propietarios de activos, responsables de sistemas. Incluir en descripciones de puestos y comunicar formalmente."},
+    ]
+  },
+  {
+    name:"Gestión de Activos e Inventario",
+    color:"#4d9fff",
+    controles:[
+      {id:"ACT-1",q:"¿Existe un inventario actualizado de todos los activos de información con propietario asignado?",
+       ens:["op.exp.1"],iso:["5.9","5.10"],nis:["NIS2-1.2"],prio:"alta",
+       rem:"Crear y mantener inventario de activos. ENS op.exp.1: inventario de activos. ISO 5.9: inventario con propietario. Base del análisis de riesgos NIS2."},
+      {id:"ACT-2",q:"¿La información está clasificada según su sensibilidad y se aplican controles apropiados?",
+       ens:["mp.info.2"],iso:["5.12","5.13"],nis:["NIS2-1.2"],prio:"media",
+       rem:"Implementar esquema de clasificación (público, interno, confidencial, secreto). ENS mp.info.2, ISO 5.12 y base para medidas proporcionales NIS2."},
+    ]
+  },
+  {
+    name:"Control de Acceso e Identidad",
+    color:"#c084fc",
+    controles:[
+      {id:"ACC-1",q:"¿Cada usuario tiene una cuenta individual única y los accesos se basan en el principio de mínimo privilegio?",
+       ens:["op.acc.1","op.acc.2"],iso:["5.15","5.16","5.18"],nis:["NIS2-8.2"],prio:"alta",
+       rem:"Eliminar cuentas compartidas. Implementar RBAC. ENS op.acc.1-2, ISO 5.15-18 y NIS2 Art.21 (control de acceso) alineados."},
+      {id:"ACC-2",q:"¿Se utiliza autenticación multifactor (MFA) en accesos a sistemas críticos y accesos remotos?",
+       ens:["op.acc.5"],iso:["8.5"],nis:["NIS2-9.1"],prio:"alta",
+       rem:"Implementar MFA obligatorio. NIS2 Art.21 lo menciona explícitamente. ENS op.acc.5 para accesos externos. ISO 8.5 para autenticación segura."},
+      {id:"ACC-3",q:"¿Existe un proceso formal de alta, modificación y baja de accesos de usuarios?",
+       ens:["op.acc.4"],iso:["5.16","5.18","6.5"],nis:["NIS2-8.3"],prio:"alta",
+       rem:"Implementar Identity Lifecycle Management. ENS op.acc.4, ISO 5.16 y NIS2 offboarding alineados. Incluir revocación inmediata en bajas."},
+      {id:"ACC-4",q:"¿Se separan las cuentas administrativas de las cuentas de uso cotidiano?",
+       ens:["op.acc.7"],iso:["8.2"],nis:["NIS2-8.2"],prio:"alta",
+       rem:"Implementar separación de cuentas privilegiadas. ENS op.acc.7 (nivel medio), ISO 8.2 (PAM) y NIS2 principio de mínimo privilegio."},
+    ]
+  },
+  {
+    name:"Gestión de Incidentes",
+    color:"#ff4d4d",
+    controles:[
+      {id:"INC-1",q:"¿Existe un procedimiento documentado para la detección, respuesta y recuperación ante incidentes?",
+       ens:["op.exp.7"],iso:["5.24","5.25","5.26"],nis:["NIS2-2.1"],prio:"alta",
+       rem:"Desarrollar Plan de Respuesta a Incidentes completo. ENS op.exp.7, ISO 5.24-26 y NIS2 Art.21 son requisitos convergentes."},
+      {id:"INC-2",q:"¿Se registran y documentan todos los incidentes de seguridad y las acciones tomadas?",
+       ens:["op.exp.9"],iso:["5.27","5.28"],nis:["NIS2-2.3"],prio:"alta",
+       rem:"Implementar sistema de ticketing/registro de incidentes. ENS op.exp.9, ISO 5.27 (lecciones aprendidas) y evidencias para notificación NIS2."},
+      {id:"INC-3",q:"¿Existe proceso para notificar incidentes a las autoridades competentes en los plazos establecidos?",
+       ens:["op.exp.7"],iso:["5.5"],nis:["NIS2-2.2"],prio:"alta",
+       rem:"NIS2: alerta en 24h, notificación en 72h (INCIBE/CCN-CERT). ENS: notificación a CCN-CERT. ISO 5.5: contacto con autoridades. Documentar el proceso."},
+    ]
+  },
+  {
+    name:"Continuidad y Recuperación",
+    color:"#f0a500",
+    controles:[
+      {id:"CON-1",q:"¿Existe un Plan de Continuidad de Negocio (BCP) que incluya escenarios de ciberataque?",
+       ens:["op.cont.2"],iso:["5.29","5.30"],nis:["NIS2-3.1","NIS2-3.2"],prio:"alta",
+       rem:"Desarrollar BCP con escenarios específicos de ciberincidente. ENS op.cont.2, ISO 5.29-30 y NIS2 Art.21 (continuidad) convergen."},
+      {id:"CON-2",q:"¿Se realizan copias de seguridad periódicas y se prueban los procesos de restauración?",
+       ens:["mp.info.7"],iso:["8.13"],nis:["NIS2-7.1"],prio:"alta",
+       rem:"Implementar política de backup: frecuencia, almacenamiento offsite/inmutable, pruebas de restauración trimestrales. Cubre ENS, ISO y NIS2."},
+      {id:"CON-3",q:"¿Se prueban los planes de continuidad y recuperación con ejercicios periódicos?",
+       ens:["op.cont.3"],iso:["5.29"],nis:["NIS2-3.1"],prio:"alta",
+       rem:"Planificar simulacros anuales del BCP/DRP. Documentar resultados y actualizar los planes. Requisito convergente en las tres normativas."},
+    ]
+  },
+  {
+    name:"Seguridad Técnica",
+    color:"#4d9fff",
+    controles:[
+      {id:"TEC-1",q:"¿Se aplican configuraciones de seguridad endurecidas (hardening) y se gestionan los parches de forma regular?",
+       ens:["op.exp.2","op.exp.4"],iso:["8.8","8.9"],nis:["NIS2-7.1"],prio:"alta",
+       rem:"Aplicar CIS Benchmarks/CCN-STIC. Establecer proceso de parcheo con plazos por criticidad. Cubre ENS, ISO 8.8-9 e higiene básica NIS2."},
+      {id:"TEC-2",q:"¿Las comunicaciones con información sensible están cifradas (TLS/HTTPS/VPN)?",
+       ens:["mp.com.2"],iso:["8.24"],nis:["NIS2-7.3"],prio:"alta",
+       rem:"Asegurar TLS 1.2+ en todos los servicios. VPN con MFA para acceso remoto. ENS mp.com.2, ISO 8.24 (criptografía) y NIS2 Art.21 (cifrado)."},
+      {id:"TEC-3",q:"¿La red está segmentada separando entornos críticos de usuarios, DMZ e invitados?",
+       ens:["mp.com.4"],iso:["8.22"],nis:["NIS2-7.1"],prio:"alta",
+       rem:"Implementar segmentación con VLANs. ENS mp.com.4, ISO 8.22 (segregación de redes) y NIS2 medidas de seguridad de red."},
+      {id:"TEC-4",q:"¿Se dispone de soluciones antimalware actualizadas y se monitoriza la actividad de los sistemas?",
+       ens:["op.exp.6","op.exp.8"],iso:["8.7","8.15","8.16"],nis:["NIS2-7.1"],prio:"alta",
+       rem:"Desplegar EDR y logging centralizado (SIEM). ENS op.exp.6+8, ISO 8.7+8.15+8.16 y NIS2 higiene básica alineados."},
+    ]
+  },
+  {
+    name:"Cadena de Suministro",
+    color:"#c084fc",
+    controles:[
+      {id:"SUP-1",q:"¿Los contratos con proveedores incluyen cláusulas de seguridad, SLA y notificación de incidentes?",
+       ens:["op.ext.1"],iso:["5.20","5.21"],nis:["NIS2-4.2"],prio:"alta",
+       rem:"Revisar y actualizar contratos de proveedores. ENS op.ext.1, ISO 5.19-22 y NIS2 Art.21 (cadena de suministro) son convergentes."},
+      {id:"SUP-2",q:"¿Se evalúa la seguridad de la cadena de suministro software (dependencias, componentes third-party)?",
+       ens:["op.ext.3"],iso:["5.21"],nis:["NIS2-4.1"],prio:"alta",
+       rem:"Implementar SCA (Software Composition Analysis). ENS op.ext.3 (nivel medio), ISO 5.21 y NIS2 Art.21 cadena de suministro TIC."},
+    ]
+  },
+  {
+    name:"Personas y Formación",
+    color:"#00d084",
+    controles:[
+      {id:"PER-1",q:"¿Todos los empleados reciben formación en ciberseguridad y conocen sus obligaciones?",
+       ens:["mp.per.3"],iso:["6.3"],nis:["NIS2-7.2"],prio:"media",
+       rem:"Implementar plan anual de concienciación: onboarding, formación por rol, phishing simulado. Cubre ENS, ISO 6.3 y NIS2 Art.21."},
+      {id:"PER-2",q:"¿Se gestionan correctamente los accesos al cesar la relación laboral (offboarding)?",
+       ens:["op.acc.4"],iso:["5.11","6.5"],nis:["NIS2-8.3"],prio:"alta",
+       rem:"Implementar proceso automático de revocación de accesos en el offboarding. Checklist: dispositivos, cuentas, VPN, SaaS."},
+    ]
+  },
+];
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+const NORM_COLOR = {ens:'var(--ens)',iso:'var(--iso)',nis:'var(--nis)',cross:'var(--cross)',flash:'var(--muted)'};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function setNav(id){
+  document.querySelectorAll('.hn').forEach(b=>b.classList.remove('act'));
+  const el=document.getElementById('hn-'+id);
+  if(el) el.classList.add('act');
+}
+function goHub(){ showScreen('hub'); setNav('hub'); }
+function goTool(t){
+  setNav(t);
+  if(t==='ens'){ initENS(); showScreen('ens'); }
+  if(t==='iso'){ initISO(); showScreen('iso'); }
+  if(t==='nis'){ initNIS(); showScreen('nis'); }
+  if(t==='cross'){ initCross(); showScreen('cross'); }
+  if(t==='flash'){ initFlash(); showScreen('flash'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// GENERIC QUESTIONNAIRE ENGINE
+// ═══════════════════════════════════════════════════════════
+function groupBy(arr, key){ const m={}; arr.forEach(x=>{ if(!m[x[key]])m[x[key]]=[]; m[x[key]].push(x);}); return m; }
+
+function makeQState(norm, medidas, accentClass, nivelField){
+  const grouped = groupBy(medidas, 'dom');
+  const sections = Object.entries(grouped).map(([name,qs])=>({name,qs}));
+  return { norm, sections, secIdx:0, answers:{}, phase:'q', accentClass, nivelField };
+}
+
+function renderQ(state, containerId, resetFn, extraTopHtml){
+  if(state.phase==='results'){ renderResults(state, containerId, resetFn); return; }
+  const sec = state.sections[state.secIdx];
+  const total = state.sections.length;
+  const pct = Math.round((state.secIdx/total)*100);
+  let html = (extraTopHtml||'');
+  html += `
+    <div class="prog-wrap">
+      <div class="prog-meta"><span class="sec-lbl sl-${state.norm}">${String(state.secIdx+1).padStart(2,'0')} · ${sec.name}</span><span>${state.secIdx+1} / ${total}</span></div>
+      <div class="prog-track"><div class="prog-fill pf-${state.norm}" style="width:${pct}%"></div></div>
+    </div>
+    ${sec.qs.map(m=>{
+      const a = state.answers[m.id];
+      const safeid = m.id.replace(/[.\-]/g,'_');
+      const nivelTag = state.nivelField && m[state.nivelField] ?
+        `<span class="qniv nv-${m[state.nivelField]&&m[state.nivelField][0]}">${m[state.nivelField]}</span>` : '';
+      return `<div class="qblock" id="qb_${safeid}">
+        <div class="qblock-head">
+          <span class="qid">${m.id}</span>${nivelTag}
+          <span class="qtext">${m.q}</span>
+        </div>
+        <div class="qopts">
+          <button class="qopt ${a==='yes'?'yes':''}" onclick="setAns('${state.norm}','${m.id}','yes',this)">✓ Sí</button>
+          <button class="qopt ${a==='partial'?'partial':''}" onclick="setAns('${state.norm}','${m.id}','partial',this)">~ Parcial</button>
+          <button class="qopt ${a==='no'?'no':''}" onclick="setAns('${state.norm}','${m.id}','no',this)">✗ No</button>
+        </div>
+      </div>`;
+    }).join('')}
+    <div class="nav-row">
+      <button class="btn btn-out ${state.norm}" onclick="qPrev('${state.norm}')">${state.secIdx===0?'← Inicio':'← Anterior'}</button>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${state.secIdx+1}/${total}</span>
+      <button class="btn btn-${state.norm}" onclick="qNext('${state.norm}')">${state.secIdx===total-1?'Ver resultados →':'Siguiente →'}</button>
+    </div>`;
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function setAns(norm, id, val, btn){
+  STATES[norm].answers[id]=val;
+  const safe=id.replace(/[.\-]/g,'_');
+  document.getElementById('qb_'+safe).querySelectorAll('.qopt').forEach(b=>b.className='qopt');
+  btn.classList.add(val);
+}
+function qPrev(norm){
+  const s=STATES[norm];
+  if(s.secIdx>0){ s.secIdx--; renderQ(s, norm+'-content', ()=>RESETS[norm]()); }
+  else goHub();
+}
+function qNext(norm){
+  const s=STATES[norm];
+  if(s.secIdx<s.sections.length-1){ s.secIdx++; renderQ(s, norm+'-content', ()=>RESETS[norm]()); }
+  else{ s.phase='results'; renderResults(s, norm+'-content', ()=>RESETS[norm]()); }
+}
+
+function renderResults(state, containerId, resetFn){
+  const medidas = state.sections.flatMap(s=>s.qs);
+  const total=medidas.length;
+  let c=0,p=0,n=0;
+  medidas.forEach(m=>{ const a=state.answers[m.id]; if(a==='yes')c++; else if(a==='partial')p++; else n++; });
+  const score=Math.round(((c+p*.5)/total)*100);
+  const nivel=score>=75?'BUENO':score>=45?'MEJORABLE':'INSUFICIENTE';
+  const npClass=score>=75?'np-a':score>=45?'np-m':'np-b';
+  const sc=score>=75?'var(--ens)':score>=45?'var(--cross)':'var(--red)';
+  const circ=2*Math.PI*44; const off=circ-(score/100)*circ;
+  const today=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  const normLabels={ens:'ENS · RD 311/2022',iso:'ISO 27001:2022 · Anexo A',nis:'NIS2 · Directiva UE 2022/2555',cross:'Evaluación Cruzada'};
+  const gaps=medidas.filter(m=>state.answers[m.id]!=='yes'&&state.answers[m.id]!=='partial');
+  const partials=medidas.filter(m=>state.answers[m.id]==='partial');
+  const po={alta:0,media:1,baja:2};
+  const sGaps=[...gaps].sort((a,b)=>(po[a.prio]||1)-(po[b.prio]||1));
+  let famBars='';
+  state.sections.forEach(sec=>{
+    const fc=sec.qs.filter(q=>state.answers[q.id]==='yes').length;
+    const fp=sec.qs.filter(q=>state.answers[q.id]==='partial').length;
+    const fpct=Math.round(((fc+fp*.5)/sec.qs.length)*100);
+    const fc2=fpct>=75?'var(--ens)':fpct>=45?'var(--cross)':'var(--red)';
+    famBars+=`<div class="fbar-row"><div class="fbar-name">${sec.name.length>22?sec.name.slice(0,20)+'…':sec.name}</div><div class="fbar-track"><div class="fbar-fill" style="width:${fpct}%;background:${fc2}"></div></div><div class="fbar-pct">${fpct}%</div></div>`;
+  });
+  document.getElementById(containerId).innerHTML=`
+    <div class="res-top">
+      <div>
+        <div class="r-title">Informe de Diagnóstico</div>
+        <div class="r-meta">${normLabels[state.norm]||''}<br>Fecha: ${today}<br>${total} controles evaluados</div>
+        <span class="nivel-pill ${npClass}">${nivel}</span>
+      </div>
+      <div class="sring">
+        <svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="44" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="55" cy="55" r="44" fill="none" stroke="${sc}" stroke-width="8" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round"/></svg>
+        <div class="sring-inner"><span class="s-pct" style="color:${sc}">${score}%</span><span class="s-lbl">cumplimiento</span></div>
+      </div>
+    </div>
+    <div class="stats3">
+      <div class="sbox sb-c"><span class="sbox-n">${c}</span><div class="sbox-l">Cumple</div></div>
+      <div class="sbox sb-p"><span class="sbox-n">${p}</span><div class="sbox-l">Parcial</div></div>
+      <div class="sbox sb-n"><span class="sbox-n">${n}</span><div class="sbox-l">No cumple</div></div>
+    </div>
+    <div class="rtitle">Cumplimiento por área</div>${famBars}
+    ${sGaps.length>0?`<div class="rtitle">GAPs — controles no cumplidos (${sGaps.length})</div>${sGaps.map(m=>`<div class="gap-row"><span class="gap-id">${m.id}</span><span class="gap-name">${m.nombre||m.nombre||''}</span><span class="gprio gp-${m.prio||'m'}">${(m.prio||'').toUpperCase()}</span></div>`).join('')}`:''}
+    ${partials.length>0?`<div class="rtitle">Cumplimiento parcial (${partials.length})</div>${partials.map(m=>`<div class="gap-row"><span class="gap-id">${m.id}</span><span class="gap-name">${m.nombre||''}</span><span class="gprio gp-m">PARCIAL</span></div>`).join('')}`:''}
+    ${sGaps.filter(m=>m.prio==='alta').length>0?`<div class="rtitle">Plan de acción — prioridad ALTA</div>${sGaps.filter(m=>m.prio==='alta').slice(0,8).map(m=>`<div class="rem-block"><div class="rem-id">${m.id} · ${m.nombre||''}</div>${m.rem||''}</div>`).join('')}`:''}
+    <div class="act-row"><button class="btn btn-${state.norm}" onclick="window.print()">Imprimir / PDF</button><button class="btn btn-out ${state.norm}" onclick="${resetFn.toString().indexOf('{')>-1?'('+resetFn.toString()+')()':'goTool(\''+state.norm+'\')'}">Nueva evaluación</button></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ENS TOOL
+// ═══════════════════════════════════════════════════════════
+let ensState={};
+function initENS(){
+  const sub=document.getElementById('ens-sub-screen');
+  // Level selector first
+  document.getElementById('ens-content').innerHTML=`
+    <div class="tool-h" style="color:var(--ens)">ENS · Esquema Nacional de Seguridad</div>
+    <div class="tool-sub">RD 311/2022 · Selecciona la categoría del sistema a evaluar</div>
+    <div class="level-grid">
+      ${['basico','medio','alto'].map(l=>{
+        const lvls={basico:0,medio:1,alto:2};
+        const cnt=ENS.filter(m=>lvls[m.niv]<=lvls[l]).length;
+        const lbls={basico:'Básico',medio:'Medio',alto:'Alto'};
+        const cls={basico:'lb-b',medio:'lb-m',alto:'lb-a'};
+        const desc={basico:'Impacto limitado. Información pública o de bajo impacto.',medio:'Información sensible. Fallo con perjuicio grave.',alto:'Sistemas críticos. Fallo con perjuicio muy grave.'};
+        return `<div class="lcard" id="lc-${l}" onclick="ensSelectLevel('${l}')">
+          <span class="lbadge ${cls[l]}">${lbls[l]}</span>
+          <h3>Categoría ${lbls[l]}</h3><p>${desc[l]}</p>
+          <div class="lcard-count">${cnt} medidas aplicables</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn btn-ens" id="ens-go" onclick="ensStart()" disabled style="opacity:.3">Comenzar evaluación →</button>`;
+}
+let ensLevel=null;
+function ensSelectLevel(l){
+  ensLevel=l;
+  document.querySelectorAll('.lcard').forEach(c=>c.className='lcard');
+  document.getElementById('lc-'+l).classList.add('lcard','sel-'+l[0]);
+  const btn=document.getElementById('ens-go'); btn.disabled=false; btn.style.opacity='1';
+}
+function ensStart(){
+  if(!ensLevel)return;
+  const lvls={basico:0,medio:1,alto:2};
+  const active=ENS.filter(m=>lvls[m.niv]<=lvls[ensLevel]);
+  ensState=makeQState('ens',active,'ens','niv');
+  ensState.nivel=ensLevel;
+  STATES['ens']=ensState;
+  renderQ(ensState,'ens-content',()=>{ensLevel=null;initENS();},
+    `<div class="tool-h" style="color:var(--ens)">ENS · Categoría ${ensLevel.charAt(0).toUpperCase()+ensLevel.slice(1)}</div><div class="tool-sub">${active.length} medidas aplicables</div>`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ISO TOOL
+// ═══════════════════════════════════════════════════════════
+let isoState={};
+function initISO(){
+  isoState=makeQState('iso',ISO,'iso',null);
+  STATES['iso']=isoState;
+  renderQ(isoState,'iso-content',()=>initISO(),
+    `<div class="tool-h" style="color:var(--iso)">ISO 27001:2022 · Anexo A</div><div class="tool-sub">93 controles · 4 dominios</div>`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// NIS2 TOOL
+// ═══════════════════════════════════════════════════════════
+let nisState={};
+function initNIS(){
+  nisState=makeQState('nis',NIS2,'nis',null);
+  STATES['nis']=nisState;
+  renderQ(nisState,'nis-content',()=>initNIS(),
+    `<div class="tool-h" style="color:var(--nis)">NIS2 · Directiva UE 2022/2555</div><div class="tool-sub">30 controles · 10 áreas de obligación</div>`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// CROSS TOOL
+// ═══════════════════════════════════════════════════════════
+let crossState={};
+function initCross(){
+  const allCtrls=CROSS_DOMAINS.flatMap(d=>d.controles.map(c=>({...c,dom:d.name,prio:c.prio})));
+  crossState=makeQState('cross',allCtrls,'cross',null);
+  STATES['cross']=crossState;
+  document.getElementById('cross-content').innerHTML=`
+    <div class="tool-h" style="color:var(--cross)">Evaluación Cruzada — ENS · ISO 27001 · NIS2</div>
+    <div class="tool-sub">Diagnóstico combinado · Identifica solapamientos y gaps por normativa</div>
+    <div class="cross-intro">
+      <h3>¿Cómo funciona?</h3>
+      <p>Cada pregunta evalúa simultáneamente controles de las tres normativas. Al responder, verás qué controles específicos de ENS, ISO 27001 y NIS2 están cubiertos o en riesgo.</p>
+      <div class="norm-badges">
+        <span class="nbadge nb-ens">ENS RD 311/2022</span>
+        <span class="nbadge nb-iso">ISO 27001:2022</span>
+        <span class="nbadge nb-nis">NIS2 Directiva UE</span>
+      </div>
+    </div>`;
+  // inject questionnaire below intro
+  const tmp=document.createElement('div'); tmp.id='cross-q-area';
+  document.getElementById('cross-content').appendChild(tmp);
+  renderCrossQ();
+}
+
+function renderCrossQ(){
+  if(crossState.phase==='results'){ renderCrossResults(); return; }
+  const sec=crossState.sections[crossState.secIdx];
+  const total=crossState.sections.length;
+  const pct=Math.round((crossState.secIdx/total)*100);
+  const area=CROSS_DOMAINS.find(d=>d.name===sec.name);
+
+  let html=`
+    <div class="prog-wrap" style="margin-top:16px">
+      <div class="prog-meta"><span class="sec-lbl sl-cross">${String(crossState.secIdx+1).padStart(2,'0')} · ${sec.name}</span><span>${crossState.secIdx+1} / ${total}</span></div>
+      <div class="prog-track"><div class="prog-fill pf-cross" style="width:${pct}%"></div></div>
+    </div>`;
+  sec.qs.forEach(ctrl=>{
+    const a=crossState.answers[ctrl.id];
+    const safe=ctrl.id.replace(/[.\-]/g,'_');
+    const ensTags=(ctrl.ens||[]).map(x=>`<span class="tag tg">${x}</span>`).join('');
+    const isoTags=(ctrl.iso||[]).map(x=>`<span class="tag tb">${x}</span>`).join('');
+    const nisTags=(ctrl.nis||[]).map(x=>`<span class="tag tp">${x}</span>`).join('');
+    html+=`<div class="qblock" id="qb_${safe}">
+      <div class="qblock-head">
+        <span class="qid" style="color:var(--cross)">${ctrl.id}</span>
+        <span class="qtext">${ctrl.q}</span>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;margin-left:0">${ensTags}${isoTags}${nisTags}</div>
+      <div class="qopts">
+        <button class="qopt ${a==='yes'?'yes':''}" onclick="setCrossAns('${ctrl.id}','yes',this)">✓ Sí</button>
+        <button class="qopt ${a==='partial'?'partial':''}" onclick="setCrossAns('${ctrl.id}','partial',this)">~ Parcial</button>
+        <button class="qopt ${a==='no'?'no':''}" onclick="setCrossAns('${ctrl.id}','no',this)">✗ No</button>
+      </div>
+    </div>`;
+  });
+  html+=`<div class="nav-row">
+    <button class="btn btn-out cross" onclick="crossPrev()">${crossState.secIdx===0?'← Inicio':'← Anterior'}</button>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${crossState.secIdx+1}/${total}</span>
+    <button class="btn btn-cross" onclick="crossNext()">${crossState.secIdx===total-1?'Ver resultados →':'Siguiente →'}</button>
+  </div>`;
+  const area2=document.getElementById('cross-q-area');
+  if(area2) area2.innerHTML=html;
+  else document.getElementById('cross-content').insertAdjacentHTML('beforeend',html);
+}
+
+function setCrossAns(id,val,btn){
+  crossState.answers[id]=val;
+  const safe=id.replace(/[.\-]/g,'_');
+  document.getElementById('qb_'+safe).querySelectorAll('.qopt').forEach(b=>b.className='qopt');
+  btn.classList.add(val);
+}
+function crossPrev(){
+  if(crossState.secIdx>0){ crossState.secIdx--; renderCrossQ(); }
+  else goHub();
+}
+function crossNext(){
+  if(crossState.secIdx<crossState.sections.length-1){ crossState.secIdx++; renderCrossQ(); }
+  else{ crossState.phase='results'; renderCrossResults(); }
+}
+
+function renderCrossResults(){
+  const allCtrls=CROSS_DOMAINS.flatMap(d=>d.controles);
+  const total=allCtrls.length;
+  let c=0,p=0,n=0;
+  allCtrls.forEach(ctrl=>{ const a=crossState.answers[ctrl.id]; if(a==='yes')c++; else if(a==='partial')p++; else n++; });
+  const score=Math.round(((c+p*.5)/total)*100);
+  const sc=score>=75?'var(--ens)':score>=45?'var(--cross)':'var(--red)';
+  const nivel=score>=75?'BUENO':score>=45?'MEJORABLE':'INSUFICIENTE';
+  const npC=score>=75?'np-a':score>=45?'np-m':'np-b';
+  const circ=2*Math.PI*44; const off=circ-(score/100)*circ;
+  const today=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+
+  // Per-norm score
+  const ensIds=new Set(CROSS_DOMAINS.flatMap(d=>d.controles.flatMap(c2=>c2.ens||[])));
+  const isoIds=new Set(CROSS_DOMAINS.flatMap(d=>d.controles.flatMap(c2=>c2.iso||[])));
+  const nisIds=new Set(CROSS_DOMAINS.flatMap(d=>d.controles.flatMap(c2=>c2.nis||[])));
+
+  function normScore(normSet, norm){
+    let nc=0,np2=0,nn=0;
+    allCtrls.forEach(ctrl=>{
+      const refs=(ctrl[norm]||[]);
+      if(refs.length===0)return;
+      const a=crossState.answers[ctrl.id];
+      if(a==='yes')nc+=refs.length;
+      else if(a==='partial')np2+=refs.length;
+      else nn+=refs.length;
+    });
+    const t2=nc+np2+nn; return t2>0?Math.round(((nc+np2*.5)/t2)*100):0;
+  }
+  const ensPct=normScore(ensIds,'ens');
+  const isoPct=normScore(isoIds,'iso');
+  const nisPct=normScore(nisIds,'nis');
+
+  const gaps=allCtrls.filter(c2=>crossState.answers[c2.id]!=='yes'&&crossState.answers[c2.id]!=='partial');
+
+  let html=`
+    <div class="res-top">
+      <div>
+        <div class="r-title">Diagnóstico Cruzado GRC</div>
+        <div class="r-meta">ENS · ISO 27001:2022 · NIS2<br>Fecha: ${today}<br>${total} controles evaluados</div>
+        <span class="nivel-pill ${npC}">${nivel}</span>
+      </div>
+      <div class="sring">
+        <svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="44" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="55" cy="55" r="44" fill="none" stroke="${sc}" stroke-width="8" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round"/></svg>
+        <div class="sring-inner"><span class="s-pct" style="color:${sc}">${score}%</span><span class="s-lbl">global</span></div>
+      </div>
+    </div>
+    <div class="stats3">
+      <div class="sbox sb-c"><span class="sbox-n">${c}</span><div class="sbox-l">Cumple</div></div>
+      <div class="sbox sb-p"><span class="sbox-n">${p}</span><div class="sbox-l">Parcial</div></div>
+      <div class="sbox sb-n"><span class="sbox-n">${n}</span><div class="sbox-l">No cumple</div></div>
+    </div>
+    <div class="rtitle">Cumplimiento por normativa</div>
+    <div class="cross-score-grid">
+      <div class="csg-card c-ens"><div class="csg-name">ENS</div><div class="csg-pct">${ensPct}%</div></div>
+      <div class="csg-card c-iso"><div class="csg-name">ISO 27001</div><div class="csg-pct">${isoPct}%</div></div>
+      <div class="csg-card c-nis"><div class="csg-name">NIS2</div><div class="csg-pct">${nisPct}%</div></div>
+    </div>
+    <div class="rtitle">Cumplimiento por dominio</div>`;
+  CROSS_DOMAINS.forEach(d=>{
+    const dCtrls=d.controles;
+    const dc=dCtrls.filter(c2=>crossState.answers[c2.id]==='yes').length;
+    const dp=dCtrls.filter(c2=>crossState.answers[c2.id]==='partial').length;
+    const dpct=Math.round(((dc+dp*.5)/dCtrls.length)*100);
+    const dc2=dpct>=75?'var(--ens)':dpct>=45?'var(--cross)':'var(--red)';
+    html+=`<div class="fbar-row"><div class="fbar-name">${d.name.length>22?d.name.slice(0,20)+'…':d.name}</div><div class="fbar-track"><div class="fbar-fill" style="width:${dpct}%;background:${dc2}"></div></div><div class="fbar-pct">${dpct}%</div></div>`;
+  });
+
+  if(gaps.length>0){
+    html+=`<div class="rtitle">GAPs y solapamientos de normativas</div>`;
+    gaps.forEach(ctrl=>{
+      const ensTags=(ctrl.ens||[]).map(x=>`<span class="tag tg">${x}</span>`).join('');
+      const isoTags=(ctrl.iso||[]).map(x=>`<span class="tag tb">${x}</span>`).join('');
+      const nisTags=(ctrl.nis||[]).map(x=>`<span class="tag tp">${x}</span>`).join('');
+      html+=`<div class="rem-block" style="border-left-color:var(--cross)">
+        <div class="rem-id" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${ensTags}${isoTags}${nisTags}</div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:6px">${ctrl.q}</div>
+        <div style="font-size:11px;color:var(--muted)">${ctrl.rem}</div>
+      </div>`;
+    });
+  }
+
+  html+=`<div class="act-row"><button class="btn btn-cross" onclick="window.print()">Imprimir / PDF</button><button class="btn btn-out cross" onclick="initCross()">Nueva evaluación</button></div>`;
+
+  const qa=document.getElementById('cross-q-area');
+  if(qa) qa.innerHTML=html;
+  else document.getElementById('cross-content').innerHTML+=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════════════════════════════
+const ALL_FLASH = [
+  ...ENS.map(m=>({...m,norm:'ens',nombre:m.nombre,q:m.q,rem:m.rem,dom:m.dom})),
+  ...ISO.map(m=>({...m,norm:'iso',nombre:m.nombre,q:m.q,rem:m.rem,dom:m.dom})),
+  ...NIS2.map(m=>({...m,norm:'nis',nombre:m.nombre,q:m.q,rem:m.rem,dom:m.dom})),
+];
+let flashState={deck:[],idx:0,flipped:false,ok:0,ko:0,skip:0,done:false,fNorm:'all',fDom:'all',fPrio:'all'};
+
+function initFlash(){
+  flashState={deck:[],idx:0,flipped:false,ok:0,ko:0,skip:0,done:false,fNorm:'all',fDom:'all',fPrio:'all'};
+  buildFlashDeck(); renderFlash();
+}
+function buildFlashDeck(){
+  let d=[...ALL_FLASH];
+  if(flashState.fNorm!=='all') d=d.filter(m=>m.norm===flashState.fNorm);
+  if(flashState.fDom!=='all')  d=d.filter(m=>m.dom===flashState.fDom);
+  if(flashState.fPrio!=='all') d=d.filter(m=>m.prio===flashState.fPrio);
+  for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  flashState.deck=d; flashState.idx=0; flashState.flipped=false;
+  flashState.ok=0; flashState.ko=0; flashState.skip=0; flashState.done=false;
+}
+function renderFlash(){
+  if(flashState.done||flashState.deck.length===0){ renderFlashEnd(); return; }
+  const m=flashState.deck[flashState.idx];
+  const flip=flashState.flipped;
+  const flipClass=flip?`flip-${m.norm}`:'';
+  const normLabels={ens:'ENS',iso:'ISO 27001',nis:'NIS2'};
+  const normColors={ens:'var(--ens)',iso:'var(--iso)',nis:'var(--nis)'};
+  const doms=[...new Set(ALL_FLASH.filter(x=>flashState.fNorm==='all'||x.norm===flashState.fNorm).map(x=>x.dom))];
+  document.getElementById('flash-content').innerHTML=`
+    <div class="tool-h">Flashcards GRC</div>
+    <div class="flash-ctrl">
+      <select class="fsel" onchange="fFilter('norm',this.value)">
+        <option value="all" ${flashState.fNorm==='all'?'selected':''}>Todas las normativas</option>
+        <option value="ens" ${flashState.fNorm==='ens'?'selected':''}>ENS</option>
+        <option value="iso" ${flashState.fNorm==='iso'?'selected':''}>ISO 27001</option>
+        <option value="nis" ${flashState.fNorm==='nis'?'selected':''}>NIS2</option>
+      </select>
+      <select class="fsel" onchange="fFilter('dom',this.value)">
+        <option value="all">Todos los dominios</option>
+        ${doms.map(d=>`<option value="${d}" ${flashState.fDom===d?'selected':''}>${d.length>28?d.slice(0,26)+'…':d}</option>`).join('')}
+      </select>
+      <select class="fsel" onchange="fFilter('prio',this.value)">
+        <option value="all" ${flashState.fPrio==='all'?'selected':''}>Todas las prioridades</option>
+        <option value="alta" ${flashState.fPrio==='alta'?'selected':''}>Prioridad Alta</option>
+        <option value="media" ${flashState.fPrio==='media'?'selected':''}>Prioridad Media</option>
+        <option value="baja" ${flashState.fPrio==='baja'?'selected':''}>Prioridad Baja</option>
+      </select>
+      <span class="flash-total">${flashState.deck.length-flashState.idx} restantes · ${flashState.deck.length} total</span>
+    </div>
+    <div class="fc ${flipClass} ${flip?'flipped':''}" onclick="fFlip()">
+      <div class="fc-top">
+        <span class="fc-id" style="color:${normColors[m.norm]}">${m.id} <span style="font-size:9px;color:var(--muted)">· ${normLabels[m.norm]}</span></span>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="tag ${m.norm==='ens'?'tg':m.norm==='iso'?'tb':'tp'}">${normLabels[m.norm]}</span>
+          ${m.prio?`<span class="tag ${m.prio==='alta'?'tr':m.prio==='media'?'ta':'tg'}">${m.prio.toUpperCase()}</span>`:''}
+        </div>
+      </div>
+      <div class="fc-front">
+        <div class="fc-lbl">${m.dom}</div>
+        <div class="fc-nombre">${m.nombre}</div>
+        <div class="fc-q">${m.q}</div>
+      </div>
+      <div class="fc-back">
+        <div class="fc-back-lbl">Acción de remediación</div>
+        <div class="fc-nombre">${m.nombre}</div>
+        <div class="fc-rem">${m.rem}</div>
+      </div>
+      <div class="fc-hint">${flip?'':'Toca para ver la respuesta →'}</div>
+    </div>
+    <div class="flash-nav">
+      ${flip?`<div class="flash-fb"><button class="fbtn fbtn-ok" onclick="fVote('ok')">✓ Lo sé</button><button class="fbtn fbtn-ko" onclick="fVote('ko')">✗ Repasar</button><button class="fbtn fbtn-sk" onclick="fVote('skip')">→ Saltar</button></div>`:'<div></div>'}
+      <div class="flash-prog">${flashState.idx+1} / ${flashState.deck.length}</div>
+    </div>
+    <div class="prog-wrap" style="margin-top:14px">
+      <div class="prog-track"><div class="prog-fill pf-iso" style="width:${Math.round((flashState.idx/flashState.deck.length)*100)}%"></div></div>
+    </div>`;
+}
+function fFlip(){ flashState.flipped=!flashState.flipped; renderFlash(); }
+function fVote(v){ if(v==='ok')flashState.ok++;else if(v==='ko')flashState.ko++;else flashState.skip++; flashState.idx++; flashState.flipped=false; if(flashState.idx>=flashState.deck.length)flashState.done=true; renderFlash(); }
+function fFilter(t,v){ if(t==='norm')flashState.fNorm=v;if(t==='dom')flashState.fDom=v;if(t==='prio')flashState.fPrio=v; buildFlashDeck(); renderFlash(); }
+function renderFlashEnd(){
+  const total=flashState.ok+flashState.ko+flashState.skip;
+  const pct=total>0?Math.round((flashState.ok/total)*100):0;
+  document.getElementById('flash-content').innerHTML=`
+    <div class="tool-h">Flashcards GRC</div>
+    <div class="sess-end">
+      <h2 style="color:var(--ens)">Sesión completada ✓</h2>
+      <p>Has repasado ${total} controles de ${flashState.fNorm==='all'?'ENS + ISO 27001 + NIS2':flashState.fNorm.toUpperCase()}</p>
+      <div class="end-stats">
+        <div class="end-s end-ok"><span class="en">${flashState.ok}</span><span class="el">Lo sé</span></div>
+        <div class="end-s end-ko"><span class="en">${flashState.ko}</span><span class="el">A repasar</span></div>
+        <div class="end-s end-sk"><span class="en">${flashState.skip}</span><span class="el">Saltadas</span></div>
+      </div>
+      <div class="end-pct" style="color:${pct>=75?'var(--ens)':pct>=45?'var(--cross)':'var(--red)'}">${pct}% dominado</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-iso" onclick="buildFlashDeck();renderFlash()">Repetir sesión</button>
+        <button class="btn btn-out muted" onclick="goHub()">Volver al inicio</button>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATE REGISTRY & RESETS
+// ═══════════════════════════════════════════════════════════
+const STATES={};
+const RESETS={
+  ens:()=>{ensLevel=null;initENS();},
+  iso:()=>initISO(),
+  nis:()=>initNIS(),
+  cross:()=>initCross(),
+};
+
+// Init
+setNav('hub');
+</script>
+<div style="max-width:860px;margin:0 auto 0;padding:16px 22px;display:flex;align-items:flex-start;gap:12px;background:#0e1219;border-top:1px solid #1a2130;border-bottom:1px solid #1a2130;">
+  <span style="font-size:18px;flex-shrink:0">⚠️</span>
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a6a7e;line-height:1.7;margin:0;">
+    <strong style="color:#f0a500;letter-spacing:1px;">AVISO LEGAL</strong> &nbsp;·&nbsp;
+    Esta herramienta es un recurso orientativo de autoevaluación y aprendizaje. 
+    Los resultados obtenidos <strong style="color:#dde4ed;">no constituyen una auditoría de cumplimiento normativo</strong> 
+    ni tienen validez legal o certificadora. Para una evaluación oficial, contacta con una 
+    empresa o profesional certificado y autorizado (ENAC, ENS, ISO 27001 Lead Auditor, etc.).
+  </p>
+</div>
+<footer style="text-align:center; padding:20px; border-top:1px solid var(--border); font-family:var(--mono); font-size:11px; color:var(--muted);">
+  Desarrollado por <a href="https://github.com/3stefani" target="_blank" style="color:var(--ens); text-decoration:none;">@3stefani</a>
+</footer>
+</body>
+</html>
