@@ -137,8 +137,6 @@ grc-toolkit/
 ## Autor
 
 Proyecto desarrollado como parte de mi portfolio en **GRC y ciberseguridad**.  
-Formación: Máster en Ciberseguridad.  
-Experiencia previa en QA Testing y Pentesting.
 
 ---
 
