@@ -22,7 +22,7 @@ Tiene dos secciones principales:
 
 ## Demo
 
-Abre el archivo `grc-toolkit.html` directamente en cualquier navegador. No requiere servidor, base de datos ni dependencias externas.
+Abre el archivo `index.html` directamente en cualquier navegador. No requiere servidor, base de datos ni dependencias externas.
 
 ---
 
@@ -84,7 +84,7 @@ La decisión de no usar frameworks fue intencionada: el objetivo era que cualqui
 
 ```
 grc-toolkit/
-├── grc-toolkit.html        # Aplicación completa (único archivo)
+├── index.html        # Aplicación completa (único archivo)
 └── README.md               # Este archivo
 
     
